@@ -22,6 +22,7 @@ export class CliApplication extends Application
             .version(pkg.version)
             .usage('<src> [options]')
             .option('-p, --tsconfig [config]', 'A tsconfig.json file')
+            .option('-i, --inputDir [folder]', 'Directory to document')
             .option('-d, --output [folder]', 'Where to store the generated documentation (default: ./documentation)', COMPODOC_DEFAULTS.folder)
             .option('-b, --base [base]', 'Base reference of html tag <base>', COMPODOC_DEFAULTS.base)
             .option('-y, --extTheme [file]', 'External styling theme file')
