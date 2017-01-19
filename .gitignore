@@ -1,0 +1,23 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+.DS_Store
+
+# Dependency directories
+node_modules
+
+#ide folders
+.idea/
+
+# Optional npm cache directory
+.npm
+
+# Test js files
+test/dist/
+.tmp-compodoc-test/
+
+# Coverage directory used by tools like istanbul
+coverage
+.nyc_output
+coverage.*
