@@ -47,6 +47,8 @@ export class Application {
                 this.configuration.mainData[option] = options[option];
             }
         }
+
+        cwd = this.configuration.mainData.inputDir;
     }
 
     /**
@@ -307,6 +309,32 @@ export class Application {
 
     processPages() {
         logger.info('Process pages');
+
+        let jsonData = {
+            readme: this.configuration.mainData.readme,
+            modules: this.configuration.mainData.modules,
+            components: this.configuration.mainData.components,
+            directives: this.configuration.mainData.directives,
+            classes: this.configuration.mainData.classes,
+            injectables: this.configuration.mainData.injectables,
+            interfaces: this.configuration.mainData.interfaces,
+            pipes: this.configuration.mainData.pipes,
+            routes: this.configuration.mainData.routes
+        };
+
+        let jsonPath = this.configuration.mainData.output || '';
+        if(jsonPath.lastIndexOf('/') === -1) {
+            jsonPath += '/';
+        }
+        jsonPath += 'documentation.json';
+
+        fs.outputJson(path.resolve(jsonPath), jsonData, function (err) {
+            if (err) {
+                logger.error('Error during json generation');
+            }
+        });
+
+        /*
         let pages = this.configuration.pages,
             i = 0,
             len = pages.length,
@@ -344,6 +372,7 @@ export class Application {
                 }
             };
         loop();
+        */
     }
 
     processResources() {

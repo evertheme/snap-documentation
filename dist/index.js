@@ -606,6 +606,7 @@ var COMPODOC_DEFAULTS = {
     title: 'Application documentation',
     additionalEntryName: 'Additional documentation',
     additionalEntryPath: 'additional-documentation',
+    inputDir: '',
     folder: './documentation/',
     port: 8080,
     theme: 'gitbook',
@@ -620,6 +621,7 @@ var Configuration = function () {
 
         this._pages = [];
         this._mainData = {
+            inputDir: COMPODOC_DEFAULTS.inputDir,
             output: COMPODOC_DEFAULTS.folder,
             theme: COMPODOC_DEFAULTS.theme,
             extTheme: '',
@@ -2209,6 +2211,7 @@ var Application = function () {
                 this.configuration.mainData[option] = options[option];
             }
         }
+        cwd = this.configuration.mainData.inputDir;
     }
     /**
      * Start compodoc
@@ -2424,46 +2427,68 @@ var Application = function () {
     }, {
         key: 'processPages',
         value: function processPages() {
-            var _this6 = this;
-
             logger.info('Process pages');
-            var pages = this.configuration.pages,
+            var jsonData = {
+                readme: this.configuration.mainData.readme,
+                modules: this.configuration.mainData.modules,
+                components: this.configuration.mainData.components,
+                directives: this.configuration.mainData.directives,
+                classes: this.configuration.mainData.classes,
+                injectables: this.configuration.mainData.injectables,
+                interfaces: this.configuration.mainData.interfaces,
+                pipes: this.configuration.mainData.pipes,
+                includes: this.configuration.mainData.includes,
+                routes: this.configuration.mainData.routes
+            };
+            var jsonPath = this.configuration.mainData.output || '';
+            if (jsonPath.lastIndexOf('/') === -1) {
+                jsonPath += '/';
+            }
+            jsonPath += 'documentation.json';
+            fs.outputJson(path.resolve(jsonPath), jsonData, function (err) {
+                if (err) {
+                    logger.error('Error during json generation');
+                }
+            });
+            /*
+            let pages = this.configuration.pages,
                 i = 0,
                 len = pages.length,
-                loop = function loop() {
-                if (i <= len - 1) {
-                    logger.info('Process page', pages[i].name);
-                    $htmlengine.render(_this6.configuration.mainData, pages[i]).then(function (htmlData) {
-                        var finalPath = _this6.configuration.mainData.output;
-                        if (_this6.configuration.mainData.output.lastIndexOf('/') === -1) {
-                            finalPath += '/';
-                        }
-                        if (pages[i].path) {
-                            finalPath += pages[i].path + '/';
-                        }
-                        finalPath += pages[i].name + '.html';
-                        $searchEngine.indexPage({
-                            infos: pages[i],
-                            rawData: htmlData,
-                            url: finalPath
-                        });
-                        fs.outputFile(path.resolve(finalPath), htmlData, function (err) {
-                            if (err) {
-                                logger.error('Error during ' + pages[i].name + ' page generation');
-                            } else {
-                                i++;
-                                loop();
+                loop = () => {
+                    if( i <= len-1) {
+                        logger.info('Process page', pages[i].name);
+                        $htmlengine.render(this.configuration.mainData, pages[i]).then((htmlData) => {
+                            let finalPath = this.configuration.mainData.output;
+                            if(this.configuration.mainData.output.lastIndexOf('/') === -1) {
+                                finalPath += '/';
                             }
+                            if (pages[i].path) {
+                                finalPath += pages[i].path + '/';
+                            }
+                            finalPath += pages[i].name + '.html';
+                            $searchEngine.indexPage({
+                                infos: pages[i],
+                                rawData: htmlData,
+                                url: finalPath
+                            });
+                            fs.outputFile(path.resolve(finalPath), htmlData, function (err) {
+                                if (err) {
+                                    logger.error('Error during ' + pages[i].name + ' page generation');
+                                } else {
+                                    i++;
+                                    loop();
+                                }
+                            });
+                        }, (errorMessage) => {
+                            logger.error(errorMessage);
                         });
-                    }, function (errorMessage) {
-                        logger.error(errorMessage);
-                    });
-                } else {
-                    $searchEngine.generateSearchIndexJson(_this6.configuration.mainData.output);
-                    _this6.processResources();
-                }
-            };
+                    } else {
+                        $searchEngine.generateSearchIndexJson(this.configuration.mainData.output);
+                        this.processResources();
+                    }
+                };
             loop();
+            */
         }
     }, {
         key: 'processResources',
@@ -2492,14 +2517,14 @@ var Application = function () {
     }, {
         key: 'processGraphs',
         value: function processGraphs() {
-            var _this7 = this;
+            var _this6 = this;
 
             var onComplete = function onComplete() {
                 var finalTime = (new Date() - startTime) / 1000;
-                logger.info('Documentation generated in ' + _this7.configuration.mainData.output + ' in ' + finalTime + ' seconds using ' + _this7.configuration.mainData.theme + ' theme');
-                if (_this7.configuration.mainData.serve) {
-                    logger.info('Serving documentation from ' + _this7.configuration.mainData.output + ' at http://127.0.0.1:' + _this7.configuration.mainData.port);
-                    _this7.runWebServer(_this7.configuration.mainData.output);
+                logger.info('Documentation generated in ' + _this6.configuration.mainData.output + ' in ' + finalTime + ' seconds using ' + _this6.configuration.mainData.theme + ' theme');
+                if (_this6.configuration.mainData.serve) {
+                    logger.info('Serving documentation from ' + _this6.configuration.mainData.output + ' at http://127.0.0.1:' + _this6.configuration.mainData.port);
+                    _this6.runWebServer(_this6.configuration.mainData.output);
                 }
             };
             if (this.configuration.mainData.disableGraph) {
@@ -2508,14 +2533,14 @@ var Application = function () {
             } else {
                 (function () {
                     logger.info('Process main graph');
-                    var modules = _this7.configuration.mainData.modules,
+                    var modules = _this6.configuration.mainData.modules,
                         i = 0,
                         len = modules.length,
                         loop = function loop() {
                         if (i <= len - 1) {
                             logger.info('Process module graph', modules[i].name);
-                            var finalPath = _this7.configuration.mainData.output;
-                            if (_this7.configuration.mainData.output.lastIndexOf('/') === -1) {
+                            var finalPath = _this6.configuration.mainData.output;
+                            if (_this6.configuration.mainData.output.lastIndexOf('/') === -1) {
                                 finalPath += '/';
                             }
                             finalPath += 'modules/' + modules[i].name;
@@ -2529,12 +2554,12 @@ var Application = function () {
                             onComplete();
                         }
                     };
-                    var finalMainGraphPath = _this7.configuration.mainData.output;
+                    var finalMainGraphPath = _this6.configuration.mainData.output;
                     if (finalMainGraphPath.lastIndexOf('/') === -1) {
                         finalMainGraphPath += '/';
                     }
                     finalMainGraphPath += 'graph';
-                    $ngdengine.renderGraph(_this7.configuration.mainData.tsconfig, path.resolve(finalMainGraphPath), 'p').then(function () {
+                    $ngdengine.renderGraph(_this6.configuration.mainData.tsconfig, path.resolve(finalMainGraphPath), 'p').then(function () {
                         loop();
                     }, function (err) {
                         logger.error('Error during graph generation: ', err);
