@@ -91,6 +91,10 @@ export class CliApplication extends Application
             this.configuration.mainData.hideGenerator = program.hideGenerator;
         }
 
+        if (program.inputDir) {
+            this.configuration.mainData.inputDir = program.inputDir;
+        }
+
         if (program.disableSourceCode) {
             this.configuration.mainData.disableSourceCode = program.disableSourceCode;
         }

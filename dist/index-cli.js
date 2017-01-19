@@ -2437,7 +2437,6 @@ var Application = function () {
                 injectables: this.configuration.mainData.injectables,
                 interfaces: this.configuration.mainData.interfaces,
                 pipes: this.configuration.mainData.pipes,
-                includes: this.configuration.mainData.includes,
                 routes: this.configuration.mainData.routes
             };
             var jsonPath = this.configuration.mainData.output || '';
@@ -2658,6 +2657,9 @@ var CliApplication = function (_Application) {
             }
             if (program.hideGenerator) {
                 this.configuration.mainData.hideGenerator = program.hideGenerator;
+            }
+            if (program.inputDir) {
+                this.configuration.mainData.inputDir = program.inputDir;
             }
             if (program.disableSourceCode) {
                 this.configuration.mainData.disableSourceCode = program.disableSourceCode;
