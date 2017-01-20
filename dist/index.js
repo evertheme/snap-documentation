@@ -2690,12 +2690,12 @@ var CliApplication = function (_Application) {
                     if (program.hideGenerator) {
                         _this2.configuration.mainData.hideGenerator = true;
                     }
-                    var defaultWalkFOlder = cwd$1 || '.',
+                    var defaultWalkFOlder = path.resolve(cwd$1 + path.sep + _this2.configuration.mainData.inputDir) || '.',
                         walk = function walk(dir, exclude) {
                         var results = [];
                         var list = fs.readdirSync(dir);
                         list.forEach(function (file) {
-                            if (exclude.indexOf(file) < 0 && dir.indexOf('node_modules') < 0) {
+                            if (exclude.indexOf(file) < 0) {
                                 file = path.join(dir, file);
                                 var stat = fs.statSync(file);
                                 if (stat && stat.isDirectory()) {

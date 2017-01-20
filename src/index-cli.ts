@@ -127,12 +127,12 @@ export class CliApplication extends Application
                 this.configuration.mainData.hideGenerator = true;
             }
 
-            let defaultWalkFOlder = cwd || '.',
+            let defaultWalkFOlder = path.resolve(cwd + path.sep + this.configuration.mainData.inputDir) || '.',
                 walk = (dir, exclude) => {
                     let results = [];
                     let list = fs.readdirSync(dir);
                     list.forEach((file) => {
-                        if (exclude.indexOf(file) < 0 && dir.indexOf('node_modules') < 0) {
+                        if (exclude.indexOf(file) < 0) {
                             file = path.join(dir, file);
                             let stat = fs.statSync(file);
                             if (stat && stat.isDirectory()) {
