@@ -2211,7 +2211,6 @@ var Application = function () {
                 this.configuration.mainData[option] = options[option];
             }
         }
-        cwd = this.configuration.mainData.inputDir;
     }
     /**
      * Start compodoc
@@ -2288,6 +2287,7 @@ var Application = function () {
             var _this5 = this;
 
             logger.info('Get dependencies data');
+            console.log('cwd: ', cwd);
             var crawler = new Dependencies(this.files, {
                 tsconfigDirectory: cwd
             });

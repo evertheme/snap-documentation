@@ -47,8 +47,6 @@ export class Application {
                 this.configuration.mainData[option] = options[option];
             }
         }
-
-        cwd = this.configuration.mainData.inputDir;
     }
 
     /**
@@ -110,6 +108,8 @@ export class Application {
 
     getDependenciesData() {
         logger.info('Get dependencies data');
+
+        console.log('cwd: ', cwd);
 
         let crawler = new Dependencies(
           this.files, {
