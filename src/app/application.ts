@@ -334,7 +334,7 @@ export class Application {
             }
         });
 
-        /*
+
         let pages = this.configuration.pages,
             i = 0,
             len = pages.length,
@@ -372,7 +372,7 @@ export class Application {
                 }
             };
         loop();
-        */
+
     }
 
     processResources() {

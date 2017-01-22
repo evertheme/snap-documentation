@@ -129,6 +129,7 @@ export class Dependencies {
                     logger.info('parsing', filePath);
 
                     try {
+                        logger.info('getSourceFileDecorators: file, deps:', file, deps);
                         this.getSourceFileDecorators(file, deps);
                     }
                     catch (e) {
@@ -150,6 +151,11 @@ export class Dependencies {
 
         let cleaner = (process.cwd() + path.sep).replace(/\\/g, '/');
         let file = srcFile.fileName.replace(cleaner, '');
+
+        logger.error('inside getSourceFileDecorators(srcFile: ts.SourceFile, outputSymbols: Object)');
+        logger.error('cleaner: ', cleaner);
+        logger.error('file: ', file);
+
 
         this.programComponent = ts.createProgram([file], {});
         let sourceFile = this.programComponent.getSourceFile(file);
