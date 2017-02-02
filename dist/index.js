@@ -1080,6 +1080,7 @@ var Dependencies = function () {
                     if (filePath.lastIndexOf('.d.ts') === -1 && filePath.lastIndexOf('spec.ts') === -1) {
                         logger.info('parsing', filePath);
                         try {
+                            logger.info('getSourceFileDecorators: file, deps:', file, deps);
                             _this.getSourceFileDecorators(file, deps);
                         } catch (e) {
                             logger.error(e, file.fileName);
@@ -1097,6 +1098,9 @@ var Dependencies = function () {
 
             var cleaner = (process.cwd() + path.sep).replace(/\\/g, '/');
             var file = srcFile.fileName.replace(cleaner, '');
+            logger.error('inside getSourceFileDecorators(srcFile: ts.SourceFile, outputSymbols: Object)');
+            logger.error('cleaner: ', cleaner);
+            logger.error('file: ', file);
             this.programComponent = ts.createProgram([file], {});
             var sourceFile = this.programComponent.getSourceFile(file);
             this.typeCheckerComponent = this.programComponent.getTypeChecker(true);
@@ -1118,7 +1122,7 @@ var Dependencies = function () {
                                 exports: _this2.getModuleExports(props),
                                 bootstrap: _this2.getModuleBootstrap(props),
                                 type: 'module',
-                                description: _this2.breakLines(IO.description),
+                                description: IO.description,
                                 sourceCode: sourceFile.getText()
                             };
                             outputSymbols['modules'].push(deps);
@@ -2427,6 +2431,8 @@ var Application = function () {
     }, {
         key: 'processPages',
         value: function processPages() {
+            var _this6 = this;
+
             logger.info('Process pages');
             var jsonData = {
                 readme: this.configuration.mainData.readme,
@@ -2449,45 +2455,43 @@ var Application = function () {
                     logger.error('Error during json generation');
                 }
             });
-            /*
-            let pages = this.configuration.pages,
+            var pages = this.configuration.pages,
                 i = 0,
                 len = pages.length,
-                loop = () => {
-                    if( i <= len-1) {
-                        logger.info('Process page', pages[i].name);
-                        $htmlengine.render(this.configuration.mainData, pages[i]).then((htmlData) => {
-                            let finalPath = this.configuration.mainData.output;
-                            if(this.configuration.mainData.output.lastIndexOf('/') === -1) {
-                                finalPath += '/';
-                            }
-                            if (pages[i].path) {
-                                finalPath += pages[i].path + '/';
-                            }
-                            finalPath += pages[i].name + '.html';
-                            $searchEngine.indexPage({
-                                infos: pages[i],
-                                rawData: htmlData,
-                                url: finalPath
-                            });
-                            fs.outputFile(path.resolve(finalPath), htmlData, function (err) {
-                                if (err) {
-                                    logger.error('Error during ' + pages[i].name + ' page generation');
-                                } else {
-                                    i++;
-                                    loop();
-                                }
-                            });
-                        }, (errorMessage) => {
-                            logger.error(errorMessage);
+                loop = function loop() {
+                if (i <= len - 1) {
+                    logger.info('Process page', pages[i].name);
+                    $htmlengine.render(_this6.configuration.mainData, pages[i]).then(function (htmlData) {
+                        var finalPath = _this6.configuration.mainData.output;
+                        if (_this6.configuration.mainData.output.lastIndexOf('/') === -1) {
+                            finalPath += '/';
+                        }
+                        if (pages[i].path) {
+                            finalPath += pages[i].path + '/';
+                        }
+                        finalPath += pages[i].name + '.html';
+                        $searchEngine.indexPage({
+                            infos: pages[i],
+                            rawData: htmlData,
+                            url: finalPath
                         });
-                    } else {
-                        $searchEngine.generateSearchIndexJson(this.configuration.mainData.output);
-                        this.processResources();
-                    }
-                };
+                        fs.outputFile(path.resolve(finalPath), htmlData, function (err) {
+                            if (err) {
+                                logger.error('Error during ' + pages[i].name + ' page generation');
+                            } else {
+                                i++;
+                                loop();
+                            }
+                        });
+                    }, function (errorMessage) {
+                        logger.error(errorMessage);
+                    });
+                } else {
+                    $searchEngine.generateSearchIndexJson(_this6.configuration.mainData.output);
+                    _this6.processResources();
+                }
+            };
             loop();
-            */
         }
     }, {
         key: 'processResources',
@@ -2516,14 +2520,14 @@ var Application = function () {
     }, {
         key: 'processGraphs',
         value: function processGraphs() {
-            var _this6 = this;
+            var _this7 = this;
 
             var onComplete = function onComplete() {
                 var finalTime = (new Date() - startTime) / 1000;
-                logger.info('Documentation generated in ' + _this6.configuration.mainData.output + ' in ' + finalTime + ' seconds using ' + _this6.configuration.mainData.theme + ' theme');
-                if (_this6.configuration.mainData.serve) {
-                    logger.info('Serving documentation from ' + _this6.configuration.mainData.output + ' at http://127.0.0.1:' + _this6.configuration.mainData.port);
-                    _this6.runWebServer(_this6.configuration.mainData.output);
+                logger.info('Documentation generated in ' + _this7.configuration.mainData.output + ' in ' + finalTime + ' seconds using ' + _this7.configuration.mainData.theme + ' theme');
+                if (_this7.configuration.mainData.serve) {
+                    logger.info('Serving documentation from ' + _this7.configuration.mainData.output + ' at http://127.0.0.1:' + _this7.configuration.mainData.port);
+                    _this7.runWebServer(_this7.configuration.mainData.output);
                 }
             };
             if (this.configuration.mainData.disableGraph) {
@@ -2532,14 +2536,14 @@ var Application = function () {
             } else {
                 (function () {
                     logger.info('Process main graph');
-                    var modules = _this6.configuration.mainData.modules,
+                    var modules = _this7.configuration.mainData.modules,
                         i = 0,
                         len = modules.length,
                         loop = function loop() {
                         if (i <= len - 1) {
                             logger.info('Process module graph', modules[i].name);
-                            var finalPath = _this6.configuration.mainData.output;
-                            if (_this6.configuration.mainData.output.lastIndexOf('/') === -1) {
+                            var finalPath = _this7.configuration.mainData.output;
+                            if (_this7.configuration.mainData.output.lastIndexOf('/') === -1) {
                                 finalPath += '/';
                             }
                             finalPath += 'modules/' + modules[i].name;
@@ -2553,12 +2557,12 @@ var Application = function () {
                             onComplete();
                         }
                     };
-                    var finalMainGraphPath = _this6.configuration.mainData.output;
+                    var finalMainGraphPath = _this7.configuration.mainData.output;
                     if (finalMainGraphPath.lastIndexOf('/') === -1) {
                         finalMainGraphPath += '/';
                     }
                     finalMainGraphPath += 'graph';
-                    $ngdengine.renderGraph(_this6.configuration.mainData.tsconfig, path.resolve(finalMainGraphPath), 'p').then(function () {
+                    $ngdengine.renderGraph(_this7.configuration.mainData.tsconfig, path.resolve(finalMainGraphPath), 'p').then(function () {
                         loop();
                     }, function (err) {
                         logger.error('Error during graph generation: ', err);
