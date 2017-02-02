@@ -182,7 +182,7 @@ export class Dependencies {
                             exports: this.getModuleExports(props),
                             bootstrap: this.getModuleBootstrap(props),
                             type: 'module',
-                            description: IO.description,
+                            description: this.breakLines(IO.description),
                             sourceCode: sourceFile.getText()
                         };
                         outputSymbols['modules'].push(deps);

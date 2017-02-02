@@ -1122,7 +1122,7 @@ var Dependencies = function () {
                                 exports: _this2.getModuleExports(props),
                                 bootstrap: _this2.getModuleBootstrap(props),
                                 type: 'module',
-                                description: IO.description,
+                                description: _this2.breakLines(IO.description),
                                 sourceCode: sourceFile.getText()
                             };
                             outputSymbols['modules'].push(deps);
