@@ -10,16 +10,19 @@ interface Page {
     interface?: any;
     directive?: any;
     injectable?: any;
+    files?: any;
+    data?: any;
 }
 
 interface IMainData {
-    inputDir: string
+    inputDir: string;
     output: string;
     theme: string;
     extTheme: string;
     serve: boolean;
     port: number;
     open: boolean;
+    assetsFolder: string;
     documentationMainName: string;
     documentationMainDescription: string;
     base: string;
@@ -39,6 +42,7 @@ interface IMainData {
     includesName: string;
     disableSourceCode: boolean;
     disableGraph: boolean;
+    disableCoverage: boolean;
 }
 
 export interface IConfiguration {
@@ -59,6 +63,7 @@ export class Configuration implements IConfiguration {
         serve: false,
         port: COMPODOC_DEFAULTS.port,
         open: false,
+        assetsFolder: '',
         documentationMainName: COMPODOC_DEFAULTS.title,
         documentationMainDescription: '',
         base: COMPODOC_DEFAULTS.base,
@@ -76,7 +81,8 @@ export class Configuration implements IConfiguration {
         tsconfig: '',
         includes: false,
         disableSourceCode: COMPODOC_DEFAULTS.disableSourceCode,
-        disableGraph: COMPODOC_DEFAULTS.disableGraph
+        disableGraph: COMPODOC_DEFAULTS.disableGraph,
+        disableCoverage: COMPODOC_DEFAULTS.disableCoverage
     };
 
     constructor() {

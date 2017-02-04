@@ -38,6 +38,7 @@
             </ul>
         </li>
 
+        {{#if modules}}
         <li class="chapter">
             <a data-type="chapter-link" href="./modules.html" {{#compare name "===" 'modules' }} class="active" {{/compare}}>
                 <span class="fa fa-archive"></span>
@@ -63,6 +64,7 @@
                 {{/each}}
             </ul>
         </li>
+        {{/if}}
 
         {{#if components}}
         <li class="chapter">
@@ -231,6 +233,12 @@
             </ul>
         </li>
         {{/if}}
+
+        {{#unless disableCoverage}}
+        <li class="chapter">
+            <a data-type="chapter-link" href="./coverage.html" {{#compare name "===" 'coverage' }} class="active" {{/compare}}><span class="fa fa-tasks"></span>Documentation coverage</a>
+        </li>
+        {{/unless}}
 
         {{#unless hideGenerator}}
         <li class="divider"></li>

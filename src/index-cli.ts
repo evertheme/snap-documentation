@@ -22,11 +22,11 @@ export class CliApplication extends Application
             .version(pkg.version)
             .usage('<src> [options]')
             .option('-p, --tsconfig [config]', 'A tsconfig.json file')
-            .option('-i, --inputDir [folder]', 'Directory to document')
             .option('-d, --output [folder]', 'Where to store the generated documentation (default: ./documentation)', COMPODOC_DEFAULTS.folder)
             .option('-b, --base [base]', 'Base reference of html tag <base>', COMPODOC_DEFAULTS.base)
             .option('-y, --extTheme [file]', 'External styling theme file')
             .option('-n, --name [name]', 'Title documentation', COMPODOC_DEFAULTS.title)
+            .option('-a, --assetsFolder [folder]', 'External assets folder to copy in generated documentation folder')
             .option('-o, --open', 'Open the generated documentation', false)
             //.option('-i, --includes [path]', 'Path of external markdown files to include')
             //.option('-j, --includesName [name]', 'Name of item menu of externals markdown file')
@@ -37,6 +37,7 @@ export class CliApplication extends Application
             .option('--hideGenerator', 'Do not print the Compodoc link at the bottom of the page', false)
             .option('--disableSourceCode', 'Do not add source code tab', false)
             .option('--disableGraph', 'Do not add the dependency graph', false)
+            .option('--disableCoverage', 'Do not add the documentation coverage report', false)
             .parse(process.argv);
 
         let outputHelp = () => {
@@ -62,6 +63,10 @@ export class CliApplication extends Application
 
         if (program.name) {
             this.configuration.mainData.documentationMainName = program.name;
+        }
+
+        if (program.assetsFolder) {
+            this.configuration.mainData.assetsFolder = program.assetsFolder;
         }
 
         if (program.open) {
@@ -92,16 +97,16 @@ export class CliApplication extends Application
             this.configuration.mainData.hideGenerator = program.hideGenerator;
         }
 
-        if (program.inputDir) {
-            this.configuration.mainData.inputDir = program.inputDir;
-        }
-
         if (program.disableSourceCode) {
             this.configuration.mainData.disableSourceCode = program.disableSourceCode;
         }
 
         if (program.disableGraph) {
             this.configuration.mainData.disableGraph = program.disableGraph;
+        }
+
+        if (program.disableCoverage) {
+            this.configuration.mainData.disableCoverage = program.disableCoverage;
         }
 
         if (program.serve && !program.tsconfig && program.output) {
@@ -127,12 +132,12 @@ export class CliApplication extends Application
                 this.configuration.mainData.hideGenerator = true;
             }
 
-            let defaultWalkFOlder = path.resolve(cwd + path.sep + this.configuration.mainData.inputDir) || '.',
+            let defaultWalkFOlder = cwd || '.',
                 walk = (dir, exclude) => {
                     let results = [];
                     let list = fs.readdirSync(dir);
                     list.forEach((file) => {
-                        if (exclude.indexOf(file) < 0) {
+                        if (exclude.indexOf(file) < 0 && dir.indexOf('node_modules') < 0) {
                             file = path.join(dir, file);
                             let stat = fs.statSync(file);
                             if (stat && stat.isDirectory()) {
@@ -170,7 +175,7 @@ export class CliApplication extends Application
                     if (!files) {
                         let exclude = require(_file).exclude || [];
 
-                        files = walk(defaultWalkFOlder, exclude);
+                        files = walk(cwd || '.', exclude);
                     }
 
                     super.setFiles(files);

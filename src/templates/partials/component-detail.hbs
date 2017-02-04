@@ -10,7 +10,7 @@
         <h3>Description</h3>
     </p>
     <p class="comment">
-        {{{ component.description}}}
+        {{{parseDescription component.description}}}
     </p>
 {{/if}}
 
@@ -161,105 +161,70 @@
 </section>
 
 {{#if component.inputsClass}}
-<section>
-    <h3>Inputs</h3>
-    <table class="table table-sm table-hover">
-        <tbody>
-            {{#each component.inputsClass}}
-                <tr>
-                    <td class="col-md-3"><code>{{name}}</code></td>
-                    <td class="col-md-9">
-                        {{#if type}}
-                            <div><i>Type: </i>{{> link-type type=type }}</div>
-                        {{/if}}
-                        {{#if defaultValue}}
-                            <div><i>Default value: </i><code>{{defaultValue}}</code></div>
-                        {{/if}}
-                        {{#if description}}
-                            <div class="io-description">{{{description}}}</div>
-                        {{/if}}
-                    </td>
-                </tr>
-            {{/each}}
-        </tbody>
-    </table>
-</section>
+    <section>
+        <h3 id="inputs">Inputs</h3>
+        {{#each component.inputsClass}}
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>{{name}}</code>
+                        </td>
+                        <td class="col-md-10">
+                          {{#if description}}
+                            <div>{{{description}}}</div>
+                          {{/if}}
+                          {{#if type}}
+                              <p>
+                                <em>Type:</em>{{> link-type type=type }}
+                              </p>
+                          {{/if}}
+                          {{#if defaultValue}}
+                            <p>
+                              <em>Default value: </em><code>{{defaultValue}}</code>
+                            </p>
+                          {{/if}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        {{/each}}
+    </section>
 {{/if}}
 
 {{#if component.outputsClass}}
-<section>
-    <h3>Outputs</h3>
-    <table class="table table-sm table-hover">
-        <tbody>
-            {{#each component.outputsClass}}
-                <tr>
-                    <td class="col-md-3"><code>{{name}}</code></td>
-                    <td class="col-md-9">
-                        {{#if type}}
-                            <div><i>Type: </i>{{> link-type type=type }}</div>
-                        {{/if}}
-                        {{#if defaultValue}}
-                            <div><i>Default value: </i><code>{{defaultValue}}</code></div>
-                        {{/if}}
-                        {{#if description}}
-                            <div class="io-description">{{{description}}}</div>
-                        {{/if}}
-                    </td>
-                </tr>
-            {{/each}}
-        </tbody>
-    </table>
-</section>
+    <section>
+        <h3 id="outputs">Outputs</h3>
+        {{#each component.outputsClass}}
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>{{name}}</code>
+                        </td>
+                        <td class="col-md-10">
+                          {{#if description}}
+                            <div>{{{description}}}</div>
+                          {{/if}}
+                          {{#if type}}
+                            <em><code>$event</code> type:</em>{{> link-type type=type }}
+                          {{/if}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        {{/each}}
+    </section>
+{{/if}}
+
+{{#if component.constructorObj}}
+    {{> block-constructor constructor=component.constructorObj }}
 {{/if}}
 
 {{#if component.methodsClass}}
-<section>
-    <h3 id="methods">Methods</h3>
-    <table class="table table-sm table-hover">
-        <tbody>
-            {{#each component.methodsClass}}
-                <tr>
-                    <td class="col-md-3"><code>{{name}}</code></td>
-                    <td class="col-md-9">
-                        {{#if args}}
-                            <div><i>Signature: </i><code>{{{functionSignature this}}}</code></div>
-                        {{/if}}
-                        {{#if returnType}}
-                            <div><i>Return type: </i><code>{{returnType}}</code></div>
-                        {{/if}}
-                        {{#if description}}
-                            <div class="io-description">{{{description}}}</div>
-                        {{/if}}
-                    </td>
-                </tr>
-            {{/each}}
-        </tbody>
-    </table>
-</section>
+    {{> block-method methods=component.methodsClass }}
 {{/if}}
 
 {{#if component.propertiesClass}}
-<section>
-    <h3 id="inputs">Properties</h3>
-    <table class="table table-sm table-hover">
-        <tbody>
-            {{#each component.propertiesClass}}
-                <tr>
-                    <td class="col-md-3"><code>{{name}}</code></td>
-                    <td class="col-md-9">
-                        {{#if type}}
-                            <div><i>Type: </i>{{> link-type type=type }}</div>
-                        {{/if}}
-                        {{#if defaultValue}}
-                            <div><i>Default value: </i><code>{{defaultValue}}</code></div>
-                        {{/if}}
-                        {{#if description}}
-                            <div class="io-description">{{{description}}}</div>
-                        {{/if}}
-                    </td>
-                </tr>
-            {{/each}}
-        </tbody>
-    </table>
-</section>
+    {{> block-property properties=component.propertiesClass }}
 {{/if}}

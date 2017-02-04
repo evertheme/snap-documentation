@@ -1,10 +1,13 @@
+import * as _ from 'lodash';
 import * as path from 'path';
 import * as util from 'util';
 import * as ts from 'typescript';
+import * as _ts from '../../utils/ts-internal';
 import marked from 'marked';
-import { getNewLineCharacter, compilerHost, d, detectIndent } from '../../utilities';
+import { compilerHost, detectIndent } from '../../utilities';
 import { logger } from '../../logger';
 import { RouterParser } from '../../utils/router.parser';
+import { LinkParser } from '../../utils/link-parser';
 import { generate } from './codegen';
 
 interface NodeObject {
@@ -97,15 +100,6 @@ export class Dependencies {
         this.program = ts.createProgram(this.files, transpileOptions, compilerHost(transpileOptions));
     }
 
-    private breakLines(text) {
-        var _t = text;
-        if (typeof _t !== 'undefined') {
-            _t = _t.replace(/(\n)/gm, '<br>');
-            _t = _t.replace(/(<br>)$/gm, '');
-        }
-        return _t;
-    }
-
     getDependencies() {
         let deps: Object = {
             'modules': [],
@@ -129,7 +123,6 @@ export class Dependencies {
                     logger.info('parsing', filePath);
 
                     try {
-                        logger.info('getSourceFileDecorators: file, deps:', file, deps);
                         this.getSourceFileDecorators(file, deps);
                     }
                     catch (e) {
@@ -143,6 +136,10 @@ export class Dependencies {
 
         });
 
+        //RouterParser.linkModulesAndRoutes();
+        //RouterParser.constructModulesTree();
+        //RouterParser.constructRoutesTree();
+
         return deps;
     }
 
@@ -151,11 +148,6 @@ export class Dependencies {
 
         let cleaner = (process.cwd() + path.sep).replace(/\\/g, '/');
         let file = srcFile.fileName.replace(cleaner, '');
-
-        logger.error('inside getSourceFileDecorators(srcFile: ts.SourceFile, outputSymbols: Object)');
-        logger.error('cleaner: ', cleaner);
-        logger.error('file: ', file);
-
 
         this.programComponent = ts.createProgram([file], {});
         let sourceFile = this.programComponent.getSourceFile(file);
@@ -182,9 +174,13 @@ export class Dependencies {
                             exports: this.getModuleExports(props),
                             bootstrap: this.getModuleBootstrap(props),
                             type: 'module',
-                            description: this.breakLines(IO.description),
+                            description: IO.description,
                             sourceCode: sourceFile.getText()
                         };
+                        if (RouterParser.hasRouterModuleInImports(deps.imports)) {
+                            RouterParser.addModuleWithRoutes(name, this.getModuleImportsRaw(props));
+                        }
+                        RouterParser.addModule(name, deps.imports);
                         outputSymbols['modules'].push(deps);
                     }
                     else if (this.isComponent(metadata)) {
@@ -215,10 +211,13 @@ export class Dependencies {
                             outputsClass: IO.outputs,
                             propertiesClass: IO.properties,
                             methodsClass: IO.methods,
-                            description: this.breakLines(IO.description),
+                            description: IO.description,
                             type: 'component',
                             sourceCode: sourceFile.getText()
                         };
+                        if(IO.constructor) {
+                            deps.constructorObj = IO.constructor;
+                        }
                         outputSymbols['components'].push(deps);
                     }
                     else if (this.isInjectable(metadata)) {
@@ -228,9 +227,12 @@ export class Dependencies {
                             type: 'injectable',
                             properties: IO.properties,
                             methods: IO.methods,
-                            description: this.breakLines(IO.description),
+                            description: IO.description,
                             sourceCode: sourceFile.getText()
                         };
+                        if(IO.constructor) {
+                            deps.constructorObj = IO.constructor;
+                        }
                         outputSymbols['injectables'].push(deps);
                     }
                     else if (this.isPipe(metadata)) {
@@ -238,19 +240,31 @@ export class Dependencies {
                             name,
                             file: file,
                             type: 'pipe',
-                            description: this.breakLines(IO.description),
+                            description: IO.description,
                             sourceCode: sourceFile.getText()
                         };
                         outputSymbols['pipes'].push(deps);
                     }
                     else if (this.isDirective(metadata)) {
+                        if(props.length === 0) return;
                         deps = {
                             name,
                             file: file,
                             type: 'directive',
-                            description: this.breakLines(IO.description),
-                            sourceCode: sourceFile.getText()
+                            description: IO.description,
+                            sourceCode: sourceFile.getText(),
+                            selector: this.getComponentSelector(props),
+                            providers: this.getComponentProviders(props),
+
+                            inputsClass: IO.inputs,
+                            outputsClass: IO.outputs,
+
+                            propertiesClass: IO.properties,
+                            methodsClass: IO.methods
                         };
+                        if(IO.constructor) {
+                            deps.constructorObj = IO.constructor;
+                        }
                         outputSymbols['directives'].push(deps);
                     }
 
@@ -280,11 +294,14 @@ export class Dependencies {
                         type: 'class',
                         sourceCode: sourceFile.getText()
                     };
+                    if(IO.constructor) {
+                        deps.constructorObj = IO.constructor;
+                    }
                     if(IO.properties) {
                         deps.properties = IO.properties;
                     }
                     if(IO.description) {
-                        deps.description = this.breakLines(IO.description);
+                        deps.description = IO.description;
                     }
                     if(IO.methods) {
                         deps.methods = IO.methods;
@@ -307,7 +324,7 @@ export class Dependencies {
                         deps.kind = IO.kind;
                     }
                     if(IO.description) {
-                        deps.description = this.breakLines(IO.description);
+                        deps.description = IO.description;
                     }
                     if(IO.methods) {
                         deps.methods = IO.methods;
@@ -336,17 +353,38 @@ export class Dependencies {
                         type: 'class',
                         sourceCode: sourceFile.getText()
                     };
+                    if(IO.constructor) {
+                        deps.constructorObj = IO.constructor;
+                    }
                     if(IO.properties) {
                         deps.properties = IO.properties;
                     }
                     if(IO.description) {
-                        deps.description = this.breakLines(IO.description);
+                        deps.description = IO.description;
                     }
                     if(IO.methods) {
                         deps.methods = IO.methods;
                     }
                     this.debug(deps);
                     outputSymbols['classes'].push(deps);
+                }
+                if (node.kind === ts.SyntaxKind.ExpressionStatement) {
+                    //Find the root module with bootstrapModule call
+                    //Find recusively in expression nodes one with name 'bootstrapModule'
+                    let rootModule,
+                        resultNode = this.findExpressionByName(node, 'bootstrapModule');
+                    if(resultNode) {
+                        if(resultNode.arguments.length > 0) {
+                            _.forEach(resultNode.arguments, function(argument) {
+                                if(argument.text) {
+                                    rootModule = argument.text;
+                                }
+                            });
+                        }
+                        if (rootModule) {
+                            RouterParser.setRootModule(rootModule);
+                        }
+                    }
                 }
             }
         });
@@ -365,6 +403,22 @@ export class Dependencies {
 
             }
         });
+    }
+
+    private findExpressionByName(entryNode, name) {
+        let result,
+            loop = function(node, name) {
+                if(node.expression && !node.expression.name) {
+                    loop(node.expression, name);
+                }
+                if(node.expression && node.expression.name) {
+                    if(node.expression.name.text === name) {
+                        result = node;
+                    }
+                }
+            }
+        loop(entryNode, name);
+        return result;
     }
 
     private isComponent(metadata) {
@@ -439,6 +493,10 @@ export class Dependencies {
         });
     }
 
+    private getModuleImportsRaw(props: NodeObject[]): Deps[] {
+        return this.getSymbolDepsRaw(props, 'imports');
+    }
+
     private getModuleImports(props: NodeObject[]): Deps[] {
         return this.getSymbolDeps(props, 'imports').map((name) => {
             return this.parseDeepIndentifier(name);
@@ -478,16 +536,25 @@ export class Dependencies {
     }
 
     private visitInput(property, inDecorator) {
-        /**
-         * Copyright https://github.com/ng-bootstrap/ng-bootstrap
-         */
-        var inArgs = inDecorator.expression.arguments;
-        return {
+        var inArgs = inDecorator.expression.arguments,
+        _return = {
             name: inArgs.length ? inArgs[0].text : property.name.text,
             defaultValue: property.initializer ? this.stringifyDefaultValue(property.initializer) : undefined,
-            type: this.visitType(property),
-            description: marked(ts.displayPartsToString(property.symbol.getDocumentationComment()))
+            description: marked(LinkParser.resolveLinks(ts.displayPartsToString(property.symbol.getDocumentationComment())))
         };
+        if (property.type) {
+            _return.type = this.visitType(property);
+        } else {
+            // handle NewExpression
+            if (property.initializer) {
+                if (property.initializer.kind === ts.SyntaxKind.NewExpression) {
+                    if (property.initializer.expression) {
+                        _return.type = property.initializer.expression.text;
+                    }
+                }
+            }
+        }
+        return _return;
     }
 
     private visitType(node) {
@@ -498,14 +565,24 @@ export class Dependencies {
     }
 
     private visitOutput(property, outDecorator) {
-        /**
-         * Copyright https://github.com/ng-bootstrap/ng-bootstrap
-         */
-        var outArgs = outDecorator.expression.arguments;
-        return {
+        var outArgs = outDecorator.expression.arguments,
+        _return = {
             name: outArgs.length ? outArgs[0].text : property.name.text,
-            description: marked(ts.displayPartsToString(property.symbol.getDocumentationComment()))
+            description: marked(LinkParser.resolveLinks(ts.displayPartsToString(property.symbol.getDocumentationComment())))
         };
+        if (property.type) {
+            _return.type = this.visitType(property);
+        } else {
+            // handle NewExpression
+            if (property.initializer) {
+                if (property.initializer.kind === ts.SyntaxKind.NewExpression) {
+                    if (property.initializer.expression) {
+                        _return.type = property.initializer.expression.text;
+                    }
+                }
+            }
+        }
+        return _return;
     }
 
     private isPublic(member): boolean {
@@ -564,6 +641,38 @@ export class Dependencies {
     }
 
     private visitConstructorDeclaration(method) {
+        /**
+         * Copyright https://github.com/ng-bootstrap/ng-bootstrap
+         */
+        var result = {
+            name: 'constructor',
+            description: marked(LinkParser.resolveLinks(ts.displayPartsToString(method.symbol.getDocumentationComment()))),
+            args: method.parameters ? method.parameters.map((prop) => this.visitArgument(prop)) : []
+        },
+            jsdoctags = _ts.getJSDocs(method),
+
+            markedtags = function(tags) {
+                var mtags = tags;
+                _.forEach(mtags, (tag) => {
+                    tag.comment = marked(LinkParser.resolveLinks(tag.comment));
+                });
+                return mtags;
+            };
+
+        if (method.modifiers) {
+            if (method.modifiers.length > 0) {
+                result.modifierKind = method.modifiers[0].kind;
+            }
+        }
+        if (jsdoctags && jsdoctags.length >= 1) {
+            if (jsdoctags[0].tags) {
+                result.jsdoctags = markedtags(jsdoctags[0].tags);
+            }
+        }
+        return result;
+    }
+
+    private visitConstructorProperties(method) {
         var that = this;
         if (method.parameters) {
             var _parameters = [],
@@ -582,7 +691,7 @@ export class Dependencies {
 
     private visitCallDeclaration(method) {
         return {
-            description: marked(ts.displayPartsToString(method.symbol.getDocumentationComment())),
+            description: marked(LinkParser.resolveLinks(ts.displayPartsToString(method.symbol.getDocumentationComment()))),
             args: method.parameters ? method.parameters.map((prop) => this.visitArgument(prop)) : [],
             returnType: this.visitType(method.type)
         }
@@ -590,7 +699,7 @@ export class Dependencies {
 
     private visitIndexDeclaration(method) {
         return {
-            description: marked(ts.displayPartsToString(method.symbol.getDocumentationComment())),
+            description: marked(LinkParser.resolveLinks(ts.displayPartsToString(method.symbol.getDocumentationComment()))),
             args: method.parameters ? method.parameters.map((prop) => this.visitArgument(prop)) : [],
             returnType: this.visitType(method.type)
         }
@@ -600,12 +709,33 @@ export class Dependencies {
         /**
          * Copyright https://github.com/ng-bootstrap/ng-bootstrap
          */
-        return {
+        var result = {
             name: method.name.text,
-            description: marked(ts.displayPartsToString(method.symbol.getDocumentationComment())),
+            description: marked(LinkParser.resolveLinks(ts.displayPartsToString(method.symbol.getDocumentationComment()))),
             args: method.parameters ? method.parameters.map((prop) => this.visitArgument(prop)) : [],
             returnType: this.visitType(method.type)
+        },
+            jsdoctags = _ts.getJSDocs(method),
+
+            markedtags = function(tags) {
+                var mtags = tags;
+                _.forEach(mtags, (tag) => {
+                    tag.comment = marked(LinkParser.resolveLinks(tag.comment));
+                });
+                return mtags;
+            };
+
+        if (method.modifiers) {
+            if (method.modifiers.length > 0) {
+                result.modifierKind = method.modifiers[0].kind;
+            }
         }
+        if (jsdoctags && jsdoctags.length >= 1) {
+            if (jsdoctags[0].tags) {
+                result.jsdoctags = markedtags(jsdoctags[0].tags);
+            }
+        }
+        return result;
     }
 
     private visitArgument(arg) {
@@ -623,7 +753,14 @@ export class Dependencies {
          * Copyright https://github.com/ng-bootstrap/ng-bootstrap
          */
         name = name || 'name';
-        return (a, b) => a[name].localeCompare(b[name]);
+        var t = (a, b) => {
+            if (a[name]) {
+                return a[name].localeCompare(b[name])
+            } else {
+                return 0;
+            }
+        };
+        return t;
     }
 
     private stringifyDefaultValue(node) {
@@ -643,24 +780,32 @@ export class Dependencies {
         /**
          * Copyright https://github.com/ng-bootstrap/ng-bootstrap
          */
-        return {
-            name: property.name.text,
-            defaultValue: property.initializer ? this.stringifyDefaultValue(property.initializer) : undefined,
-            type: this.visitType(property),
-            description: marked(ts.displayPartsToString(property.symbol.getDocumentationComment()))
-        };
+         var result = {
+             name: property.name.text,
+             defaultValue: property.initializer ? this.stringifyDefaultValue(property.initializer) : undefined,
+             type: this.visitType(property),
+             description: marked(LinkParser.resolveLinks(ts.displayPartsToString(property.symbol.getDocumentationComment())))
+         }
+         if (property.modifiers) {
+             if (property.modifiers.length > 0) {
+                 result.modifierKind = property.modifiers[0].kind;
+             }
+         }
+        return result;
     }
 
     private visitMembers(members) {
         /**
          * Copyright https://github.com/ng-bootstrap/ng-bootstrap
          */
-        var inputs = [];
-        var outputs = [];
-        var methods = [];
-        var properties = [];
-        var kind;
-        var inputDecorator, outDecorator;
+        var inputs = [],
+            outputs = [],
+            methods = [],
+            properties = [],
+            kind,
+            inputDecorator,
+            constructor,
+            outDecorator;
 
 
         for (var i = 0; i < members.length; i++) {
@@ -687,12 +832,13 @@ export class Dependencies {
                 } else if (members[i].kind === ts.SyntaxKind.IndexSignature) {
                     properties.push(this.visitIndexDeclaration(members[i]));
                 } else if (members[i].kind === ts.SyntaxKind.Constructor) {
-                    let _constructorProperties = this.visitConstructorDeclaration(members[i]),
+                    let _constructorProperties = this.visitConstructorProperties(members[i]),
                         j = 0,
                         len = _constructorProperties.length;
                     for(j; j<len; j++) {
                         properties.push(_constructorProperties[j]);
                     }
+                    constructor = this.visitConstructorDeclaration(members[i]);
                 }
             }
         }
@@ -706,7 +852,8 @@ export class Dependencies {
             outputs,
             methods,
             properties,
-            kind
+            kind,
+            constructor
         };
     }
 
@@ -769,7 +916,7 @@ export class Dependencies {
          * Copyright https://github.com/ng-bootstrap/ng-bootstrap
          */
         var symbol = this.program.getTypeChecker().getSymbolAtLocation(classDeclaration.name);
-        var description = marked(ts.displayPartsToString(symbol.getDocumentationComment()));
+        var description = marked(LinkParser.resolveLinks(ts.displayPartsToString(symbol.getDocumentationComment())));
         var className = classDeclaration.name.text;
         var directiveInfo;
         var members;
@@ -785,7 +932,8 @@ export class Dependencies {
                         outputs: members.outputs,
                         properties: members.properties,
                         methods: members.methods,
-                        kind: members.kind
+                        kind: members.kind,
+                        constructor: members.constructor
                     };
                 } else if (this.isServiceDecorator(classDeclaration.decorators[i])) {
                   members = this.visitMembers(classDeclaration.members);
@@ -795,7 +943,8 @@ export class Dependencies {
                     description,
                     methods: members.methods,
                     properties: members.properties,
-                    kind: members.kind
+                    kind: members.kind,
+                    constructor: members.constructor
                   }];
               } else if (this.isPipeDecorator(classDeclaration.decorators[i]) || this.isModuleDecorator(classDeclaration.decorators[i])) {
                   return [{
@@ -812,7 +961,8 @@ export class Dependencies {
                 description,
                 methods: members.methods,
                 properties: members.properties,
-                kind: members.kind
+                kind: members.kind,
+                constructor: members.constructor
             }];
         } else {
             members = this.visitMembers(classDeclaration.members);
@@ -820,7 +970,8 @@ export class Dependencies {
             return [{
                 methods: members.methods,
                 properties: members.properties,
-                kind: members.kind
+                kind: members.kind,
+                constructor: members.constructor
             }];
         }
 
@@ -834,6 +985,10 @@ export class Dependencies {
             for(i; i<len; i++) {
                 if(node.declarationList.declarations[i].type) {
                     if(node.declarationList.declarations[i].type.typeName && node.declarationList.declarations[i].type.typeName.text === 'Routes') {
+                        RouterParser.addRoute({
+                            name: node.declarationList.declarations[i].name.text,
+                            data: generate(node.declarationList.declarations[i].initializer)
+                        });
                         return [{
                             routes: generate(node.declarationList.declarations[i].initializer)
                         }];
@@ -998,6 +1153,13 @@ export class Dependencies {
         return deps.map(parseProperties).pop();
     }
 
+    private getSymbolDepsRaw(props: NodeObject[], type: string, multiLine?: boolean): any {
+        let deps = props.filter((node: NodeObject) => {
+            return node.name.text === type;
+        });
+        return deps || [];
+    }
+
     private getSymbolDeps(props: NodeObject[], type: string, multiLine?: boolean): string[] {
 
         let deps = props.filter((node: NodeObject) => {
@@ -1040,7 +1202,7 @@ export class Dependencies {
                     }
                 }
 
-                if (node.kind ===  ts.SyntaxKind.SpreadElementExpression) {
+                if (node.kind ===  ts.SyntaxKind.SpreadElement) {
                     return `...${nodeName}`;
                 }
                 return `${buildIdentifierName(node.expression, nodeName)}${name}`

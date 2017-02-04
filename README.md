@@ -16,7 +16,7 @@
   <img src="https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/main-view.png" alt="Compodoc: The missing documentation tool for your Angular application">
 </p>
 
-Features
+#Features
 ------------
 
 * **Clean, simple design** — With Compodoc, the main endpoints are on the left side of your documentation, and all the content on the right side
@@ -31,11 +31,17 @@ Features
 
 * **A local tool** - No server needed, no sources uploaded online
 
-## Live Demo
+* **JSDoc light support** - Support of @param, @returns, @link and @example tags
 
-[Demo](https://compodoc.github.io/compodoc-demo-todomvc-angular2/) : documentation generated for [TodoMVC Angular Compodoc demo](https://github.com/compodoc/compodoc-demo-todomvc-angular2)
+* **Documentation coverage** - Get the documentation coverage report of your project
 
-## Static Demo
+* **Angular-CLI friendly** - Compodoc support out of the box Angular-CLI projects
+
+# Live Demo
+
+[Demo](https://compodoc.github.io/compodoc-demo-todomvc-angular/) : documentation generated for [TodoMVC Angular Compodoc demo project](https://github.com/compodoc/compodoc-demo-todomvc-angular)
+
+# Static Demo
 
 Using [SoundCloud API client / Angular2 project](https://github.com/r-park/soundcloud-ngrx) and default theme (gitbook)
 
@@ -45,23 +51,32 @@ README page             |  Overview page
 Modules page             |  Single module page
 ![screenshot-3](https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/3.png)  | ![screenshot-4](https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/4.png)
 Component page             |  Source code tab
-![screenshot-5](https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/5.png)  | ![screenshot-5](https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/7.png)
-Search page             |  
-![screenshot-5](https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/6.png)  |
+![screenshot-5](https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/5.png)  | ![screenshot-6](https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/7.png)
+Search page             |  Coverage report
+![screenshot-7](https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/6.png)  |![screenshot-8](https://raw.githubusercontent.com/compodoc/compodoc/master/screenshots/8.png)
 
-## Why this tool ?
+# Why this tool ?
 
 Because we doesn't find our needs on existing tools. We want to have a single place where there is :
 - api documentation of code
 - component(s), directive(s), pipe(s), ... documentation
 - general documentation (\*.md files)
 
-## Why not a SPA for outputed documentation ?
+# Why not a SPA for outputed documentation ?
 
 [KISS principle](https://en.wikipedia.org/wiki/KISS_principle) or shortly __"Keep it simple"__. We think static html files are simpler than another SPA inside an "SPA documentation".
 
+# Who's using Compodoc ?
+
+- [angular-seed](https://github.com/mgechev/angular-seed)
+- [angular-calendar](https://github.com/mattlewis92/angular-calendar)
+
+These are some that [we know of](https://github.com/search?q=compodoc+filename%3Apackage.json+-user%3Acompodoc&ref=searchresults&type=Code&utf8=%E2%9C%93). Want your project listed here ? Drop us a line.
+
 # Table of Contents
 
+- [Node.js versions](#node.js-versions)
+- [Angular-CLI](#angular-cli)
 - [Getting Started with compodoc](#getting-started-with-compodoc)
   - [Install](#install)
   - [Usage](#usage)
@@ -83,6 +98,16 @@ Because we doesn't find our needs on existing tools. We want to have a single pl
 - [Resources](#resources)
 - [License](#license)
 
+## Node.js versions
+
+Compodoc is tested with only LTS versions : v6.9.4 & v4.7.1
+
+## Angular-CLI
+
+Compodoc supports last Angular-CLI version : [1.0.0-beta-26](https://github.com/angular/angular-cli/blob/master/CHANGELOG.md#100-beta26-2017-01-19)
+
+Just run Compodoc in a fresh or existing project.
+
 ## Getting Started with compodoc
 
 ### Install
@@ -102,21 +127,23 @@ Usage: compodoc <src> [options]
 
 Options:
 
-  -h, --help                output usage information
-  -V, --version             output the version number
-  -p, --tsconfig [config]   A tsconfig.json file
-  -d, --output [folder]     Where to store the generated documentation
-  -b, --base [base]         Base reference of html tag <base>
-  -y, --extTheme [file]     External styling theme
-  -n, --name [name]         Title documentation
-  -o, --open                Open the generated documentation
-  -t, --silent              In silent mode, log messages aren't logged in the console
-  -s, --serve               Serve generated documentation (default http://localhost:8080/)
-  -r, --port [port]         Change default serving port
-  --theme [theme]           Choose one of available themes, default is 'gitbook' (laravel, original, postmark, readthedocs, stripe, vagrant)
-  --hideGenerator           Do not print the Compodoc link at the bottom of the page
-  --disableSourceCode       Do not add source code tab
-  --disableGraph            Disable rendering of the dependency graph
+  -h, --help                   output usage information
+  -V, --version                output the version number
+  -p, --tsconfig [config]      A tsconfig.json file
+  -d, --output [folder]        Where to store the generated documentation
+  -b, --base [base]            Base reference of html tag <base>
+  -y, --extTheme [file]        External styling theme
+  -n, --name [name]            Title documentation
+  -a, --assetsFolder [folder]  External assets folder to copy in generated documentation folder
+  -o, --open                   Open the generated documentation
+  -t, --silent                 In silent mode, log messages aren't logged in the console
+  -s, --serve                  Serve generated documentation (default http://localhost:8080/)
+  -r, --port [port]            Change default serving port
+  --theme [theme]              Choose one of available themes, default is 'gitbook' (laravel, original, postmark, readthedocs, stripe, vagrant)
+  --hideGenerator              Do not print the Compodoc link at the bottom of the page
+  --disableSourceCode          Do not add source code tab
+  --disableGraph               Disable rendering of the dependency graph
+  --disableCoverage            Do not add the documentation coverage report
 ```
 
 ### Local installation
@@ -227,7 +254,7 @@ Compodoc search for a default README.md file inside the root folder of each comp
     └── README.md
 ```
 
-The live demo as a component documented in that way : [TodoMVC Angular Compodoc demo / todo component](https://compodoc.github.io/compodoc-demo-todomvc-angular2/components/TodoComponent.html)
+The live demo as a component documented in that way : [TodoMVC Angular Compodoc demo / todo component](https://compodoc.github.io/compodoc-demo-todomvc-angular/components/TodoComponent.html)
 
 ## Remark for comments
 
@@ -253,6 +280,44 @@ These ones are not supported :
 // unsupported comment
 ```
 
+Currently Compodoc only support these JSDoc tags :
+
+- ```@param <param name>```
+- ```@returns```
+- ```@example```
+- ```@link```
+
+```
+/**
+ * @param {string} target  The target to process see {@link Todo}
+ *
+ * @example
+ * This is a good example
+ * processTarget('yo')
+ *
+ * @returns      The processed target number
+ */
+function processTarget(target:string):number;
+```
+
+For @link you can use this three syntax like JSDoc:
+
+- for an internal reference
+
+```
+{@link Todo}
+[Todo]{@link Todo}
+{@link Todo|TodoClass}
+```
+
+- for an external link
+
+```
+[Google]{@link http://www.google.com}
+{@link http://www.apple.com|Apple}
+{@link https://github.com GitHub}
+```
+
 ## Remark for routes
 
 Follow the style guide and provide a const of type 'Routes' :
@@ -274,13 +339,14 @@ Compodoc use [Marked](https://github.com/chjj/marked) for markdown parsing and c
 
 Just use a normal code block in your markdown with correct language : [Github help](https://help.github.com/articles/creating-and-highlighting-code-blocks/)
 
-The integrated languages are : json, bash, javascript, markdown, html, typescript
+The integrated languages are : __json, bash, javascript, markdown, html, typescript__
 
 ## Roadmap
 
 - [ ] handle external markdown files as "functional" documentation
 - [ ] watch/recompile feature while serving documentation
 - [ ] support for Angular 1.5+ projects written in Typescript
+- [x] documentation coverage
 - [x] routes
 - [x] classes
 - [x] module(s) page(s) with comments
@@ -305,14 +371,15 @@ There is a JHipster module available to run Compodoc with JHipster. You can find
 
 ## Contributing
 
-Want to file a bug, contribute some code, or improve documentation? Excellent!
+Want to file a bug, contribute some code, or improve documentation? Excellent !
+
 Read up on our guidelines for [contributing](https://github.com/compodoc/compodoc/blob/master/.github/CONTRIBUTING.md).
 
 ## Contributors
 
-[<img alt="vogloblinsky" src="https://avatars3.githubusercontent.com/u/2841805?v=3&s=117" width="117">](https://github.com/vogloblinsky) |[<img alt="daniele-zurico" src="https://avatars3.githubusercontent.com/u/3193095?v=3&s=117" width="117">](https://github.com/daniele-zurico)|
+[<img alt="vogloblinsky" src="https://avatars3.githubusercontent.com/u/2841805?v=3&s=117" width="117">](https://github.com/vogloblinsky) |[<img alt="daniele-zurico" src="https://avatars3.githubusercontent.com/u/3193095?v=3&s=117" width="117">](https://github.com/daniele-zurico)|[<img alt="mattlewis92" src="https://avatars3.githubusercontent.com/u/6425649?v=3&s=117" width="117">](https://github.com/daniele-zurico)|
 :---: |:---: |:---: |:---: |:---: |:---: |
-[vogloblinsky](https://github.com/vogloblinsky) |[daniele-zurico](https://github.com/daniele-zurico)|
+[vogloblinsky](https://github.com/vogloblinsky) |[daniele-zurico](https://github.com/daniele-zurico)|[mattlewis92](https://github.com/mattlewis92)
 
 ## Resources
 

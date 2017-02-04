@@ -1,3 +1,91 @@
+<a name="0.0.38"></a>
+## 0.0.38 (2017-01-27)
+
+### Bug Fixes
+
+* **app:** ngd call for output path with spaces ([37fe0a6](https://github.com/compodoc/compodoc/commit/37fe0a6)), closes [#44](https://github.com/compodoc/compodoc/issues/44)
+* **app:** class constructor test ([54b7c8e](https://github.com/compodoc/compodoc/commit/54b7c8e)), closes [#95](https://github.com/compodoc/compodoc/issues/95)
+* **app:** test if constructor available ([bd1cb92](https://github.com/compodoc/compodoc/commit/bd1cb92))
+
+<a name="0.0.37"></a>
+## 0.0.37 (2017-01-26)
+
+### Features
+
+* **app:** extend directive documentation ([1637178](https://github.com/compodoc/compodoc/commit/1637178)), closes [#91](https://github.com/compodoc/compodoc/issues/91)
+* **app:** Support for @example from JSDoc ([51cd282](https://github.com/compodoc/compodoc/commit/51cd282)), closes [#90](https://github.com/compodoc/compodoc/issues/90)
+* **app:** Support for @link from JSDoc ([f05b7e7](https://github.com/compodoc/compodoc/commit/f05b7e7)), closes [#92](https://github.com/compodoc/compodoc/issues/92)
+* **app:** include constructor method in docs ([ddd00dc](https://github.com/compodoc/compodoc/commit/ddd00dc)), closes [#94](https://github.com/compodoc/compodoc/issues/94)
+
+<a name="0.0.36"></a>
+## 0.0.36 (2017-01-23)
+
+### Bug Fixes
+
+* **app:** differentiate static members from instance members ([c8460eb](https://github.com/compodoc/compodoc/commit/c8460eb)), closes [#88](https://github.com/compodoc/compodoc/issues/88)
+
+* **app:** modules menu items shows even if no modules ([af72453](https://github.com/compodoc/compodoc/commit/af72453)), closes [#89](https://github.com/compodoc/compodoc/issues/89)
+
+* **app:** Image should resize to fit viewport ([2b24237](https://github.com/compodoc/compodoc/commit/2b24237)), closes [#83](https://github.com/compodoc/compodoc/issues/83)
+
+* **app:** @input without type ([0f92ca4](https://github.com/compodoc/compodoc/commit/0f92ca4))
+
+* **app:** file parsed doesn't exist ([eda183d](https://github.com/compodoc/compodoc/commit/eda183d))
+
+* **app:** interface keys sorting with [key: string]: string; ([4e4c5cd](https://github.com/compodoc/compodoc/commit/4e4c5cd))
+
+* **app:** component output type issue with NewExpression ([4e49d22](https://github.com/compodoc/compodoc/commit/4e49d22))
+
+* **app:** parsing .d.ts ([e38b571](https://github.com/compodoc/compodoc/commit/e38b571))
+
+<a name="0.0.35"></a>
+## 0.0.35 (2017-01-20)
+
+### Bug Fixes
+
+* **app:** multi-line in description and code hightlight in jsdocs params ([816027e](https://github.com/compodoc/compodoc/commit/816027e)), closes [#79](https://github.com/compodoc/compodoc/issues/79) [#77](https://github.com/compodoc/compodoc/issues/77) [#76](https://github.com/compodoc/compodoc/issues/76)
+
+* **app:** coverage report breaks ([462cf95](https://github.com/compodoc/compodoc/commit/462cf95)), closes [#65](https://github.com/compodoc/compodoc/issues/65) [#80](https://github.com/compodoc/compodoc/issues/80)
+
+* **app:** dont link to files excluded via tsconfig ([3063f10](https://github.com/compodoc/compodoc/commit/3063f10)), closes [#59](https://github.com/compodoc/compodoc/issues/59)
+
+### Features
+
+* **app:** show component output `$event` type ([fa894f0](https://github.com/compodoc/compodoc/commit/fa894f0)), closes [#60](https://github.com/compodoc/compodoc/issues/60)
+
+<a name="0.0.34"></a>
+## 0.0.34 (2017-01-19)
+
+### Bug Fixes
+
+* **app:** nvm or nodejs / windows support ([0512c899](https://github.com/compodoc/compodoc/commit/0512c899)), closes [#44](https://github.com/compodoc/compodoc/issues/44)
+
+### Features
+
+* **app:** support external assets folder ([90ba24d](https://github.com/compodoc/compodoc/commit/90ba24d)), closes [#71](https://github.com/compodoc/compodoc/issues/71)
+
+<a name="0.0.33"></a>
+## 0.0.33 (2017-01-17)
+
+### Bug Fixes
+
+* **app:** handle path with spaces for ngd call ([8037285](https://github.com/compodoc/compodoc/commit/8037285)), closes [#44](https://github.com/compodoc/compodoc/issues/44)
+* **app:** nvm-windows path issue ([7ac7373](https://github.com/compodoc/compodoc/commit/7ac7373)), closes [#65](https://github.com/compodoc/compodoc/issues/65)
+* **app:** disable highlightjs line-numbers on bash code blocks ([96a6ff4](https://github.com/compodoc/compodoc/commit/96a6ff4)), closes [#64](https://github.com/compodoc/compodoc/issues/64)
+* **app:** Cannot read property 'configuration' of undefined during external theme copy ([2127408](https://github.com/compodoc/compodoc/commit/2127408)), closes [#69](https://github.com/compodoc/compodoc/issues/69)
+
+### Features
+
+* **app:** JSDoc tags support ([bc5b01f](https://github.com/compodoc/compodoc/commit/bc5b01f)), closes [#68](https://github.com/compodoc/compodoc/issues/68)
+* **app:** documentation coverage ([ddca8d4](https://github.com/compodoc/compodoc/commit/ddca8d4)), closes [#67](https://github.com/compodoc/compodoc/issues/67)
+
+<a name="0.0.32"></a>
+## 0.0.32 (2017-01-12)
+
+### Bug Fix
+
+* **app:** src argument handling ([14550f3](https://github.com/compodoc/compodoc/commit/14550f3)), closes [#63](https://github.com/compodoc/compodoc/issues/63)
+
 <a name="0.0.31"></a>
 ## 0.0.31 (2017-01-11)
 

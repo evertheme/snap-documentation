@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as _ from 'lodash';
 import * as LiveServer from 'live-server';
 import * as Shelljs from 'shelljs';
 import marked from 'marked';
@@ -16,6 +17,7 @@ import { $dependenciesEngine } from './engines/dependencies.engine';
 import { NgdEngine } from './engines/ngd.engine';
 import { SearchEngine } from './engines/search.engine';
 import { Dependencies } from './compiler/dependencies';
+import { RouterParser } from '../utils/router.parser';
 
 import { COMPODOC_DEFAULTS } from '../utils/defaults';
 
@@ -109,17 +111,17 @@ export class Application {
     getDependenciesData() {
         logger.info('Get dependencies data');
 
-        console.log('cwd: ', cwd);
-
         let crawler = new Dependencies(
           this.files, {
-            tsconfigDirectory: cwd
+            tsconfigDirectory: path.dirname(this.configuration.mainData.tsconfig)
           }
         );
 
         let dependenciesData = crawler.getDependencies();
 
         $dependenciesEngine.init(dependenciesData);
+
+        //RouterParser.printRoutes();
 
         this.prepareModules();
 
@@ -146,6 +148,10 @@ export class Application {
                 this.prepareInterfaces();
             }
 
+            if (!this.configuration.mainData.disableCoverage) {
+                this.prepareCoverage();
+            }
+
             this.processPages();
         }, (errorMessage) => {
             logger.error(errorMessage);
@@ -154,7 +160,32 @@ export class Application {
 
     prepareModules() {
         logger.info('Prepare modules');
-        this.configuration.mainData.modules = $dependenciesEngine.getModules();
+        this.configuration.mainData.modules = $dependenciesEngine.getModules().map(ngModule => {
+            ['declarations', 'bootstrap', 'imports', 'exports'].forEach(metadataType => {
+                ngModule[metadataType] = ngModule[metadataType].filter(metaDataItem => {
+                    switch (metaDataItem.type) {
+                        case 'directive':
+                            return $dependenciesEngine.getDirectives().some(directive => directive.name === metaDataItem.name);
+
+                        case 'component':
+                            return $dependenciesEngine.getComponents().some(component => component.name === metaDataItem.name);
+
+                        case 'module':
+                            return $dependenciesEngine.getModules().some(module => module.name === metaDataItem.name);
+
+                        case 'pipe':
+                            return $dependenciesEngine.getPipes().some(pipe => pipe.name === metaDataItem.name);
+
+                        default:
+                            return true;
+                    }
+                });
+            });
+            ngModule.providers = ngModule.providers.filter(provider => {
+                return $dependenciesEngine.getInjectables().some(injectable => injectable.name === provider.name);
+            });
+            return ngModule;
+        });
         this.configuration.addPage({
             name: 'modules',
             context: 'modules'
@@ -307,34 +338,200 @@ export class Application {
         });
     }
 
+    prepareCoverage() {
+        logger.info('Process documentation coverage report');
+
+        /*
+         * loop with components, classes, injectables, interfaces, pipes
+         */
+        var files = [],
+            totalProjectStatementDocumented = 0,
+            getStatus = function(percent) {
+                var status;
+                if (percent <= 25) {
+                    status = 'low';
+                } else if (percent > 25 && percent <= 50) {
+                    status = 'medium';
+                } else if (percent > 50 && percent <= 75) {
+                    status = 'good';
+                } else {
+                    status = 'very-good';
+                }
+                return status;
+            };
+
+        _.forEach(this.configuration.mainData.components, (component) => {
+            if (!component.propertiesClass ||
+                !component.methodsClass ||
+                !component.inputsClass ||
+                !component.outputsClass) {
+                    return;
+                }
+            let cl = {
+                    filePath: component.file,
+                    type: component.type,
+                    name: component.name
+                },
+                totalStatementDocumented = 0,
+                totalStatements = component.propertiesClass.length + component.methodsClass.length + component.inputsClass.length + component.outputsClass.length + 1; // +1 for component decorator comment
+            _.forEach(component.propertiesClass, (property) => {
+                if(property.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            _.forEach(component.methodsClass, (method) => {
+                if(method.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            _.forEach(component.inputsClass, (input) => {
+                if(input.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            _.forEach(component.outputsClass, (output) => {
+                if(output.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            if (component.description !== '') {
+                totalStatementDocumented += 1;
+            }
+            cl.coveragePercent = Math.floor((totalStatementDocumented / totalStatements) * 100);
+            if(totalStatements === 0) {
+                cl.coveragePercent = 0;
+            }
+            cl.coverageCount = totalStatementDocumented + '/' + totalStatements;
+            cl.status = getStatus(cl.coveragePercent);
+            totalProjectStatementDocumented += cl.coveragePercent;
+            files.push(cl);
+        })
+        _.forEach(this.configuration.mainData.classes, (classe) => {
+            if (!classe.properties ||
+                !classe.methods) {
+                    return;
+                }
+            let cl = {
+                    filePath: classe.file,
+                    type: 'classe',
+                    name: classe.name
+                },
+                totalStatementDocumented = 0,
+                totalStatements = classe.properties.length + classe.methods.length;
+            _.forEach(classe.properties, (property) => {
+                if(property.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            _.forEach(classe.methods, (method) => {
+                if(method.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            cl.coveragePercent = Math.floor((totalStatementDocumented / totalStatements) * 100);
+            if(totalStatements === 0) {
+                cl.coveragePercent = 0;
+            }
+            cl.coverageCount = totalStatementDocumented + '/' + totalStatements;
+            cl.status = getStatus(cl.coveragePercent);
+            totalProjectStatementDocumented += cl.coveragePercent;
+            files.push(cl);
+        });
+        _.forEach(this.configuration.mainData.injectables, (injectable) => {
+            if (!injectable.properties ||
+                !injectable.methods) {
+                    return;
+                }
+            let cl = {
+                    filePath: injectable.file,
+                    type: injectable.type,
+                    name: injectable.name
+                },
+                totalStatementDocumented = 0,
+                totalStatements = injectable.properties.length + injectable.methods.length;
+            _.forEach(injectable.properties, (property) => {
+                if(property.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            _.forEach(injectable.methods, (method) => {
+                if(method.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            cl.coveragePercent = Math.floor((totalStatementDocumented / totalStatements) * 100);
+            if(totalStatements === 0) {
+                cl.coveragePercent = 0;
+            }
+            cl.coverageCount = totalStatementDocumented + '/' + totalStatements;
+            cl.status = getStatus(cl.coveragePercent);
+            totalProjectStatementDocumented += cl.coveragePercent;
+            files.push(cl);
+        });
+        _.forEach(this.configuration.mainData.interfaces, (inter) => {
+            if (!inter.properties ||
+                !inter.methods) {
+                    return;
+                }
+            let cl = {
+                    filePath: inter.file,
+                    type: inter.type,
+                    name: inter.name
+                },
+                totalStatementDocumented = 0,
+                totalStatements = inter.properties.length + inter.methods.length;
+            _.forEach(inter.properties, (property) => {
+                if(property.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            _.forEach(inter.methods, (method) => {
+                if(method.description !== '') {
+                    totalStatementDocumented += 1;
+                }
+            });
+            cl.coveragePercent = Math.floor((totalStatementDocumented / totalStatements) * 100);
+            if(totalStatements === 0) {
+                cl.coveragePercent = 0;
+            }
+            cl.coverageCount = totalStatementDocumented + '/' + totalStatements;
+            cl.status = getStatus(cl.coveragePercent);
+            totalProjectStatementDocumented += cl.coveragePercent;
+            files.push(cl);
+        });
+        _.forEach(this.configuration.mainData.pipes, (pipe) => {
+            let cl = {
+                    filePath: pipe.file,
+                    type: pipe.type,
+                    name: pipe.name
+                },
+                totalStatementDocumented = 0,
+                totalStatements = 1;
+            if (pipe.description !== '') {
+                totalStatementDocumented += 1;
+            }
+            cl.coveragePercent = Math.floor((totalStatementDocumented / totalStatements) * 100);
+            cl.coverageCount = totalStatementDocumented + '/' + totalStatements;
+            cl.status = getStatus(cl.coveragePercent);
+            totalProjectStatementDocumented += cl.coveragePercent;
+            files.push(cl);
+        });
+        files = _.sortBy(files, ['filePath']);
+        var coverageData = {
+            count: Math.floor(totalProjectStatementDocumented / files.length),
+            status: ''
+        };
+        coverageData.status = getStatus(coverageData.count);
+        this.configuration.addPage({
+            name: 'coverage',
+            context: 'coverage',
+            files: files,
+            data: coverageData
+        });
+    }
+
     processPages() {
         logger.info('Process pages');
-
-        let jsonData = {
-            readme: this.configuration.mainData.readme,
-            modules: this.configuration.mainData.modules,
-            components: this.configuration.mainData.components,
-            directives: this.configuration.mainData.directives,
-            classes: this.configuration.mainData.classes,
-            injectables: this.configuration.mainData.injectables,
-            interfaces: this.configuration.mainData.interfaces,
-            pipes: this.configuration.mainData.pipes,
-            routes: this.configuration.mainData.routes
-        };
-
-        let jsonPath = this.configuration.mainData.output || '';
-        if(jsonPath.lastIndexOf('/') === -1) {
-            jsonPath += '/';
-        }
-        jsonPath += 'documentation.json';
-
-        fs.outputJson(path.resolve(jsonPath), jsonData, function (err) {
-            if (err) {
-                logger.error('Error during json generation');
-            }
-        });
-
-
         let pages = this.configuration.pages,
             i = 0,
             len = pages.length,
@@ -368,11 +565,28 @@ export class Application {
                     });
                 } else {
                     $searchEngine.generateSearchIndexJson(this.configuration.mainData.output);
+                    if (this.configuration.mainData.assetsFolder !== '') {
+                        this.processAssetsFolder();
+                    }
                     this.processResources();
                 }
             };
         loop();
+    }
 
+    processAssetsFolder() {
+        logger.info('Copy assets folder');
+
+        if (!fs.existsSync(this.configuration.mainData.assetsFolder)) {
+            logger.error(`Provided assets folder ${this.configuration.mainData.assetsFolder} did not exist`);
+        } else {
+            let that = this;
+            fs.copy(path.resolve(this.configuration.mainData.assetsFolder), path.resolve(process.cwd() + path.sep + this.configuration.mainData.output + path.sep + this.configuration.mainData.assetsFolder), function (err) {
+                if(err) {
+                    logger.error('Error during resources copy ', err);
+                }
+            });
+        }
     }
 
     processResources() {
@@ -384,7 +598,7 @@ export class Application {
             }
             else {
                 if (that.configuration.mainData.extTheme) {
-                    fs.copy(path.resolve(process.cwd() + path.sep + that.configuration.mainData.extTheme), path.resolve(process.cwd() + path.sep + this.configuration.mainData.output + '/styles/'), function (err) {
+                    fs.copy(path.resolve(process.cwd() + path.sep + that.configuration.mainData.extTheme), path.resolve(process.cwd() + path.sep + that.configuration.mainData.output + '/styles/'), function (err) {
                         if (err) {
                             logger.error('Error during external styling theme copy ', err);
                         } else {
