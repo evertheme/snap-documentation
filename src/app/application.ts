@@ -46,6 +46,7 @@ export class Application {
 
         for (let option in options ) {
             if(typeof this.configuration.mainData[option] !== 'undefined') {
+
                 this.configuration.mainData[option] = options[option];
             }
         }
