@@ -537,7 +537,7 @@ export class Application {
             i = 0,
             len = pages.length,
             loop = () => {
-                if( i <= len-1) {
+                if( i <= len-1 && this.configuration.mainData.generateHtml) {
                     logger.info('Process page', pages[i].name);
                     $htmlengine.render(this.configuration.mainData, pages[i]).then((htmlData) => {
                         let finalPath = this.configuration.mainData.output;
