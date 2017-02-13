@@ -533,6 +533,14 @@ export class Application {
 
     processPages() {
         logger.info('Process pages');
+        let jsonPath = this.configuration.mainData.output;
+        if(this.configuration.mainData.output.lastIndexOf('/') === -1) {
+            jsonPath += '/';
+        }
+        jsonPath += 'documentation.json';
+        fs.outputJson(jsonPath, this.configuration.mainData, function (err) {
+            console.log(err) // => null
+        });
         let pages = this.configuration.pages,
             i = 0,
             len = pages.length,
