@@ -22,6 +22,8 @@ export class CliApplication extends Application
             .version(pkg.version)
             .usage('<src> [options]')
             .option('-p, --tsconfig [config]', 'A tsconfig.json file')
+            .option('-d, --inputDir [folder]', 'Where the project you wish to document exists (default: \'\')', COMPODOC_DEFAULTS.inputDir)
+            .option('-d, --generateHtml', 'Option to generate html', COMPODOC_DEFAULTS.generateHtml)
             .option('-d, --output [folder]', 'Where to store the generated documentation (default: ./documentation)', COMPODOC_DEFAULTS.folder)
             .option('-b, --base [base]', 'Base reference of html tag <base>', COMPODOC_DEFAULTS.base)
             .option('-y, --extTheme [file]', 'External styling theme file')
@@ -47,6 +49,14 @@ export class CliApplication extends Application
 
         if (program.output) {
             this.configuration.mainData.output = program.output;
+        }
+
+        if (program.inputDir) {
+            this.configuration.mainData.inputDir = program.inputDir;
+        }
+
+        if (program.generateHtml) {
+            this.configuration.mainData.generateHtml = program.generateHtml;
         }
 
         if (program.base) {
