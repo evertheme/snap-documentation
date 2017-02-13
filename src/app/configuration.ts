@@ -16,6 +16,7 @@ interface Page {
 
 interface IMainData {
     inputDir: string;
+    generateHtml: boolean;
     output: string;
     theme: string;
     extTheme: string;
@@ -57,6 +58,7 @@ export class Configuration implements IConfiguration {
     private _pages:Array<Page> = [];
     private _mainData: IMainData = {
         inputDir: COMPODOC_DEFAULTS.inputDir,
+        generateHtml: COMPODOC_DEFAULTS.generateHtml,
         output: COMPODOC_DEFAULTS.folder,
         theme: COMPODOC_DEFAULTS.theme,
         extTheme: '',

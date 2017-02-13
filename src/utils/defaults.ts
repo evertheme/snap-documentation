@@ -1,5 +1,6 @@
 export const COMPODOC_DEFAULTS = {
     inputDir: '',
+    generateHtml:  false,
     title: 'Application documentation',
     additionalEntryName: 'Additional documentation',
     additionalEntryPath: 'additional-documentation',
