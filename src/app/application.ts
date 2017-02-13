@@ -541,46 +541,48 @@ export class Application {
         fs.outputJson(jsonPath, this.configuration.mainData, function (err) {
             console.log(err) // => null
         });
-        let pages = this.configuration.pages,
-            i = 0,
-            len = pages.length,
-            loop = () => {
-                if( i <= len-1 && this.configuration.mainData.generateHtml) {
-                    logger.info('Process page', pages[i].name);
-                    $htmlengine.render(this.configuration.mainData, pages[i]).then((htmlData) => {
-                        let finalPath = this.configuration.mainData.output;
-                        if(this.configuration.mainData.output.lastIndexOf('/') === -1) {
-                            finalPath += '/';
-                        }
-                        if (pages[i].path) {
-                            finalPath += pages[i].path + '/';
-                        }
-                        finalPath += pages[i].name + '.html';
-                        $searchEngine.indexPage({
-                            infos: pages[i],
-                            rawData: htmlData,
-                            url: finalPath
-                        });
-                        fs.outputFile(path.resolve(finalPath), htmlData, function (err) {
-                            if (err) {
-                                logger.error('Error during ' + pages[i].name + ' page generation');
-                            } else {
-                                i++;
-                                loop();
-                            }
-                        });
-                    }, (errorMessage) => {
-                        logger.error(errorMessage);
-                    });
-                } else {
-                    $searchEngine.generateSearchIndexJson(this.configuration.mainData.output);
-                    if (this.configuration.mainData.assetsFolder !== '') {
-                        this.processAssetsFolder();
-                    }
-                    this.processResources();
-                }
-            };
-        loop();
+        if (this.configuration.mainData.generateHtml) {
+            let pages = this.configuration.pages,
+              i = 0,
+              len = pages.length,
+              loop = () => {
+                  if (i <= len - 1) {
+                      logger.info('Process page', pages[i].name);
+                      $htmlengine.render(this.configuration.mainData, pages[i]).then((htmlData) => {
+                          let finalPath = this.configuration.mainData.output;
+                          if (this.configuration.mainData.output.lastIndexOf('/') === -1) {
+                              finalPath += '/';
+                          }
+                          if (pages[i].path) {
+                              finalPath += pages[i].path + '/';
+                          }
+                          finalPath += pages[i].name + '.html';
+                          $searchEngine.indexPage({
+                              infos: pages[i],
+                              rawData: htmlData,
+                              url: finalPath
+                          });
+                          fs.outputFile(path.resolve(finalPath), htmlData, function (err) {
+                              if (err) {
+                                  logger.error('Error during ' + pages[i].name + ' page generation');
+                              } else {
+                                  i++;
+                                  loop();
+                              }
+                          });
+                      }, (errorMessage) => {
+                          logger.error(errorMessage);
+                      });
+                  } else {
+                      $searchEngine.generateSearchIndexJson(this.configuration.mainData.output);
+                      if (this.configuration.mainData.assetsFolder !== '') {
+                          this.processAssetsFolder();
+                      }
+                      this.processResources();
+                  }
+              };
+            loop();
+        }
     }
 
     processAssetsFolder() {
