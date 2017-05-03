@@ -104,6 +104,7 @@ export class Application {
     processPackageJson() {
         logger.info('Searching package.json file');
         $fileengine.get('package.json').then((packageData) => {
+            logger.info('JSON.stringify(packageData)', JSON.stringify(packageData));
             let parsedData = JSON.parse(packageData);
             if (typeof parsedData.name !== 'undefined' && this.configuration.mainData.documentationMainName === COMPODOC_DEFAULTS.title) {
                 this.configuration.mainData.documentationMainName = parsedData.name + ' documentation';
