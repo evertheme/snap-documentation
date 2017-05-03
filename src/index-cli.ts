@@ -186,6 +186,8 @@ export class CliApplication extends Application
                         var excludeTest = _.find(exclude, function(o) {
                             return path.basename(o) === file;
                         });
+                        logger.info('typeof excludeTest', typeof excludeTest);
+                        logger.info('dir.indexOf(\'node_modules\') < 0', dir.indexOf('node_modules') < 0);
                         if (typeof excludeTest === 'undefined' && dir.indexOf('node_modules') < 0) {
                             file = path.join(dir, file);
                             let stat = fs.statSync(file);
