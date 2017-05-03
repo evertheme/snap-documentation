@@ -188,7 +188,13 @@ export class CliApplication extends Application
                         });
                         logger.info('typeof excludeTest', typeof excludeTest);
                         logger.info('dir.indexOf(\'node_modules\') < 0', dir.indexOf('node_modules') < 0);
-                        if (typeof excludeTest === 'undefined' && dir.indexOf('node_modules') < 0) {
+                        // FIX: if inputDir includes node_modules
+                        if(dir.indexOf('node_modules') > -1) {
+
+                        }
+                        // let nmTest = dir.indexOf('node_modules') > -1;
+                        // if (typeof excludeTest === 'undefined' && dir.indexOf('node_modules') < 0) {
+                        if (typeof excludeTest === 'undefined') {
                             file = path.join(dir, file);
                             let stat = fs.statSync(file);
                             if (stat && stat.isDirectory()) {
