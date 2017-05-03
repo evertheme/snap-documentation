@@ -227,6 +227,7 @@ export class CliApplication extends Application
                     }
 
                     logger.info('Using files', typeof files);
+                    logger.info('files[0]', files[0]);
                     super.setFiles(files);
                     super.generate();
                 }
