@@ -226,7 +226,7 @@ export class CliApplication extends Application
                         files = walk(defaultWalkFOlder || '.', exclude);
                     }
 
-                    logger.info('Using files', files);
+                    logger.info('Using files', typeof files);
                     super.setFiles(files);
                     super.generate();
                 }
