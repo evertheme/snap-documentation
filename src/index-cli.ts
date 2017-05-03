@@ -180,6 +180,7 @@ export class CliApplication extends Application
                     logger.info('walk dir', dir);
                     let results = [];
                     let list = fs.readdirSync(dir);
+                    logger.info('walk list', JSON.stringify(list));
                     list.forEach((file) => {
                         logger.info('list.forEach((file)) =>', file);
                         var excludeTest = _.find(exclude, function(o) {
