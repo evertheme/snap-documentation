@@ -965,7 +965,7 @@ export class Application {
         }
         jsonPath += 'documentation.json';
 
-        fs.outputJson(path.resolve(jsonPath), jsonData, function (err) {
+        fs.outputJson(path.resolve(jsonPath), this.configuration.mainData, function (err) {
             if (err) {
                 logger.error('Error during json generation');
             }
