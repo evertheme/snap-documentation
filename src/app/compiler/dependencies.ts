@@ -131,6 +131,7 @@ export class Dependencies {
         sourceFiles.map((file: ts.SourceFile) => {
 
             let filePath = file.fileName;
+            logger.info('filePath:', filePath);
 
             if (path.extname(filePath) === '.ts') {
 

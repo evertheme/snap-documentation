@@ -181,6 +181,7 @@ export class CliApplication extends Application
                     let results = [];
                     let list = fs.readdirSync(dir);
                     list.forEach((file) => {
+                        logger.info('list.forEach((file)) =>', file);
                         var excludeTest = _.find(exclude, function(o) {
                             return path.basename(o) === file;
                         });
