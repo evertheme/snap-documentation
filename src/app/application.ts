@@ -956,7 +956,6 @@ export class Application {
             components: this.configuration.mainData.components,
             directives: this.configuration.mainData.directives,
             classes: this.configuration.mainData.classes,
-            injectables: this.configuration.mainData.injectables,
             interfaces: this.configuration.mainData.interfaces,
             pipes: this.configuration.mainData.pipes,
             routes: this.configuration.mainData.routes
