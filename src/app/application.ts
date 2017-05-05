@@ -949,7 +949,7 @@ export class Application {
     processPages() {
         logger.info('Process pages');
 
-        let jsonData = this.configuration.mainData();
+        let jsonData = this.configuration.mainData;
 
         let jsonPath = this.configuration.mainData.output || '';
         if(jsonPath.lastIndexOf('/') === -1) {
