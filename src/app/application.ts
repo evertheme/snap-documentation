@@ -956,6 +956,7 @@ export class Application {
             jsonPath += '/';
         }
         jsonPath += 'next.json';
+        logger.info('jsonPath', jsonPath);
 
         fs.outputJson(path.resolve(jsonPath), jsonData, function (err) {
             if (err) {
