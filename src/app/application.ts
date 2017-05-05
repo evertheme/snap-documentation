@@ -963,9 +963,9 @@ export class Application {
         if(jsonPath.lastIndexOf('/') === -1) {
             jsonPath += '/';
         }
-        jsonPath += 'documentation.json';
+        jsonPath += 'next.json';
 
-        fs.outputJson(path.resolve(jsonPath), this.configuration.mainData, function (err) {
+        fs.outputJson(path.resolve(jsonPath), jsonData, function (err) {
             if (err) {
                 logger.error('Error during json generation');
             }
