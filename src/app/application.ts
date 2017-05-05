@@ -949,7 +949,18 @@ export class Application {
     processPages() {
         logger.info('Process pages');
 
-        let jsonData = this.configuration.mainData;
+        // let jsonData = this.configuration.mainData.modules;
+        let jsonData = {
+            readme: this.configuration.mainData.readme,
+            modules: this.configuration.mainData.modules,
+            components: this.configuration.mainData.components,
+            directives: this.configuration.mainData.directives,
+            classes: this.configuration.mainData.classes,
+            injectables: this.configuration.mainData.injectables,
+            interfaces: this.configuration.mainData.interfaces,
+            pipes: this.configuration.mainData.pipes,
+            routes: this.configuration.mainData.routes
+        };
 
         let jsonPath = this.configuration.mainData.output || '';
         if(jsonPath.lastIndexOf('/') === -1) {
