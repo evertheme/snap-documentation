@@ -20,6 +20,8 @@ import { SearchEngine } from './engines/search.engine';
 import { Dependencies } from './compiler/dependencies';
 import { RouterParser } from '../utils/router.parser';
 
+import { IMainData } from './configuration';
+
 import { COMPODOC_DEFAULTS } from '../utils/defaults';
 
 import { cleanNameWithoutSpaceAndToLowerCase, findMainSourceFolder } from '../utilities';
@@ -947,17 +949,7 @@ export class Application {
     processPages() {
         logger.info('Process pages');
 
-        let jsonData = {
-            readme: this.configuration.mainData.readme,
-            modules: this.configuration.mainData.modules,
-            components: this.configuration.mainData.components,
-            directives: this.configuration.mainData.directives,
-            classes: this.configuration.mainData.classes,
-            injectables: this.configuration.mainData.injectables,
-            interfaces: this.configuration.mainData.interfaces,
-            pipes: this.configuration.mainData.pipes,
-            routes: this.configuration.mainData.routes
-        };
+        let jsonData = this.configuration.mainData();
 
         let jsonPath = this.configuration.mainData.output || '';
         if(jsonPath.lastIndexOf('/') === -1) {

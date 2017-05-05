@@ -96,6 +96,7 @@ export class Configuration implements IConfiguration {
         tsconfig: '',
         toggleMenuItems: [],
         includes: '',
+        mainGraph: '',
         includesName: COMPODOC_DEFAULTS.additionalEntryName,
         includesFolder: COMPODOC_DEFAULTS.additionalEntryPath,
         disableSourceCode: COMPODOC_DEFAULTS.disableSourceCode,
