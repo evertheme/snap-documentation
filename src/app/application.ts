@@ -618,9 +618,9 @@ export class Application {
         return new Promise((resolve, reject) => {
             let i = 0,
                 len = this.configuration.mainData.injectables.length;
-
+                logger.info('injectables length', len);
             for(i; i<len; i++) {
-                logger.info('injectable', this.configuration.mainData.injectables[i].name, JSON.stringify(this.configuration.mainData.injectables[i]));
+                logger.info(this.configuration.mainData.injectables[i].name, JSON.stringify(this.configuration.mainData.injectables[i]));
                 this.configuration.addPage({
                     path: 'injectables',
                     name: this.configuration.mainData.injectables[i].name,
@@ -960,7 +960,6 @@ export class Application {
             directives: this.configuration.mainData.directives,
             classes: this.configuration.mainData.classes,
             interfaces: this.configuration.mainData.interfaces,
-            injectables: this.configuration.mainData.injectables,
             pipes: this.configuration.mainData.pipes,
             routes: this.configuration.mainData.routes
         };
