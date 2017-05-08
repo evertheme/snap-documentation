@@ -950,7 +950,7 @@ export class Application {
         logger.info('Process pages');
 
         // let jsonData = this.configuration.mainData.modules;
-        /*
+
         let jsonData = {
 
             readme: this.configuration.mainData.readme,
@@ -959,13 +959,12 @@ export class Application {
             directives: this.configuration.mainData.directives,
             classes: this.configuration.mainData.classes,
             interfaces: this.configuration.mainData.interfaces,
-            injectables: $dependenciesEngine.getInjectables(),
             pipes: this.configuration.mainData.pipes,
             routes: this.configuration.mainData.routes
         };
-        */
 
-        let jsonData = $dependenciesEngine.rawData;
+
+        // let jsonData = $dependenciesEngine.rawData;
 
         let jsonPath = this.configuration.mainData.output || '';
         if(jsonPath.lastIndexOf('/') === -1) {
