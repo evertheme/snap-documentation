@@ -293,7 +293,6 @@ export class Application {
             .catch(errorMessage => {
                 logger.error(errorMessage);
             });
-        logger.info('actions', JSON.stringify(actions));
     }
 
     prepareExternalIncludes() {
@@ -951,7 +950,9 @@ export class Application {
         logger.info('Process pages');
 
         // let jsonData = this.configuration.mainData.modules;
+        /*
         let jsonData = {
+
             readme: this.configuration.mainData.readme,
             modules: this.configuration.mainData.modules,
             components: this.configuration.mainData.components,
@@ -962,6 +963,9 @@ export class Application {
             pipes: this.configuration.mainData.pipes,
             routes: this.configuration.mainData.routes
         };
+        */
+
+        let jsonData = $dependenciesEngine.rawData;
 
         let jsonPath = this.configuration.mainData.output || '';
         if(jsonPath.lastIndexOf('/') === -1) {
