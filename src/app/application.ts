@@ -293,6 +293,7 @@ export class Application {
             .catch(errorMessage => {
                 logger.error(errorMessage);
             });
+        logger.info('actions', JSON.stringify(actions));
     }
 
     prepareExternalIncludes() {
