@@ -966,7 +966,7 @@ export class Application {
         if(jsonPath.lastIndexOf('/') === -1) {
             jsonPath += '/';
         }
-        jsonPath += 'next.json';
+        jsonPath += 'docs.json';
         logger.info('jsonPath', jsonPath);
 
         fs.outputJson(path.resolve(jsonPath), jsonData, function (err) {
