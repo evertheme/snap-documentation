@@ -620,7 +620,7 @@ export class Application {
                 len = this.configuration.mainData.injectables.length;
                 logger.info('injectables length', len);
             for(i; i<len; i++) {
-                logger.info(this.configuration.mainData.injectables[i].name, JSON.stringify(this.configuration.mainData.injectables[i]));
+                // logger.info(this.configuration.mainData.injectables[i].name, JSON.stringify(this.configuration.mainData.injectables[i]));
                 this.configuration.addPage({
                     path: 'injectables',
                     name: this.configuration.mainData.injectables[i].name,

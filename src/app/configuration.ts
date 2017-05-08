@@ -122,6 +122,9 @@ export class Configuration implements IConfiguration {
 
     addPage(page: Page) {
         this._pages.push(page);
+        if(page.path === 'injectables') {
+            console.log(page.name, JSON.stringify(page));
+        }
     }
 
     addAdditionalPage(page: Page) {
