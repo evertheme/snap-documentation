@@ -180,7 +180,7 @@ export class CliApplication extends Application
                     logger.info('walk dir', dir);
                     let results = [];
                     let list = fs.readdirSync(dir);
-                    logger.info('walk list', JSON.stringify(list));
+                    // logger.info('walk list', JSON.stringify(list));
                     list.forEach((file) => {
                         logger.info('list.forEach((file)) =>', file);
                         var excludeTest = _.find(exclude, function(o) {
@@ -236,8 +236,8 @@ export class CliApplication extends Application
                         files = walk(defaultWalkFOlder || '.', exclude);
                     }
 
-                    logger.info('typeof files', typeof files);
-                    logger.info('JSON.stringify(files)', JSON.stringify(files));
+                    // logger.info('typeof files', typeof files);
+                    // logger.info('JSON.stringify(files)', JSON.stringify(files));
                     super.setFiles(files);
                     super.generate();
                 }
