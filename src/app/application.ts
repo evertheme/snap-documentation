@@ -20,8 +20,6 @@ import { SearchEngine } from './engines/search.engine';
 import { Dependencies } from './compiler/dependencies';
 import { RouterParser } from '../utils/router.parser';
 
-import { IMainData } from './configuration';
-
 import { COMPODOC_DEFAULTS } from '../utils/defaults';
 
 import { cleanNameWithoutSpaceAndToLowerCase, findMainSourceFolder } from '../utilities';
@@ -35,7 +33,7 @@ let pkg = require('../package.json'),
     $markdownengine = new MarkdownEngine(),
     $ngdengine = new NgdEngine(),
     $searchEngine = new SearchEngine(),
-    startTime = new Date()
+    startTime = new Date();
 
 export class Application {
     /**
@@ -106,7 +104,6 @@ export class Application {
     processPackageJson() {
         logger.info('Searching package.json file');
         $fileengine.get('package.json').then((packageData) => {
-            // logger.info('JSON.stringify(packageData)', JSON.stringify(packageData));
             let parsedData = JSON.parse(packageData);
             if (typeof parsedData.name !== 'undefined' && this.configuration.mainData.documentationMainName === COMPODOC_DEFAULTS.title) {
                 this.configuration.mainData.documentationMainName = parsedData.name + ' documentation';
@@ -618,9 +615,8 @@ export class Application {
         return new Promise((resolve, reject) => {
             let i = 0,
                 len = this.configuration.mainData.injectables.length;
-                logger.info('injectables length', len);
+
             for(i; i<len; i++) {
-                // logger.info(this.configuration.mainData.injectables[i].name, JSON.stringify(this.configuration.mainData.injectables[i]));
                 this.configuration.addPage({
                     path: 'injectables',
                     name: this.configuration.mainData.injectables[i].name,
@@ -949,34 +945,12 @@ export class Application {
 
     processPages() {
         logger.info('Process pages');
-
-        // let jsonData = this.configuration.mainData.modules;
-
-        let jsonData = {
-
-            readme: this.configuration.mainData.readme,
-            modules: this.configuration.mainData.modules,
-            components: this.configuration.mainData.components,
-            directives: this.configuration.mainData.directives,
-            classes: this.configuration.mainData.classes,
-            interfaces: this.configuration.mainData.interfaces,
-            pipes: this.configuration.mainData.pipes,
-            routes: this.configuration.mainData.routes
-        };
-
-        logger.info('injectables', this.configuration.mainData.injectables);
-
-
-        // let jsonData = $dependenciesEngine.rawData;
-
         let jsonPath = this.configuration.mainData.output || '';
         if(jsonPath.lastIndexOf('/') === -1) {
             jsonPath += '/';
         }
         jsonPath += 'docs.json';
-        logger.info('jsonPath', jsonPath);
-
-        fs.outputJson(path.resolve(jsonPath), jsonData, function (err) {
+        fs.outputJson(path.resolve(jsonPath), this.configuration.mainData, function (err) {
             if (err) {
                 logger.error('Error during json generation', err);
             }

@@ -152,7 +152,7 @@ export class CliApplication extends Application
         }
 
         if (program.serve && !program.tsconfig && program.output) {
-            logger.info('if -s & -d, serve it');
+            // if -s & -d, serve it
             if (!fs.existsSync(program.output)) {
                 logger.error(`${program.output} folder doesn't exist`);
                 process.exit(1);
@@ -161,7 +161,7 @@ export class CliApplication extends Application
                 super.runWebServer(program.output);
             }
         } else if (program.serve && !program.tsconfig && !program.output) {
-            logger.info('if only -s find ./documentation, if ok serve, else error provide -d');
+            // if only -s find ./documentation, if ok serve, else error provide -d
             if (!fs.existsSync(program.output)) {
                 logger.error('Provide output generated folder with -d flag');
                 process.exit(1);
@@ -170,29 +170,18 @@ export class CliApplication extends Application
                 super.runWebServer(program.output);
             }
         } else {
-            logger.info('if NOT -s & -d, DO NOT serve it');
             if (program.hideGenerator) {
                 this.configuration.mainData.hideGenerator = true;
             }
 
             let defaultWalkFOlder = path.resolve(cwd + path.sep + this.configuration.mainData.inputDir) || '.',
                 walk = (dir, exclude) => {
-                    logger.info('walk dir', dir);
                     let results = [];
                     let list = fs.readdirSync(dir);
-                    // logger.info('walk list', JSON.stringify(list));
                     list.forEach((file) => {
-                        logger.info('list.forEach((file)) =>', file);
                         var excludeTest = _.find(exclude, function(o) {
                             return path.basename(o) === file;
                         });
-                        logger.info('typeof excludeTest', typeof excludeTest);
-                        logger.info('dir.indexOf(\'node_modules\') < 0', dir.indexOf('node_modules') < 0);
-                        // FIX: if inputDir includes node_modules
-                        if(dir.indexOf('node_modules') > -1) {
-
-                        }
-                        // let nmTest = dir.indexOf('node_modules') > -1;
                         // if (typeof excludeTest === 'undefined' && dir.indexOf('node_modules') < 0) {
                         if (typeof excludeTest === 'undefined') {
                             file = path.join(dir, file);
@@ -213,7 +202,6 @@ export class CliApplication extends Application
                 };
 
             if (program.tsconfig && program.args.length === 0) {
-                logger.info('true: program.tsconfig && program.args.length === 0');
                 this.configuration.mainData.tsconfig = program.tsconfig;
                 if (!fs.existsSync(program.tsconfig)) {
                     logger.error('"tsconfig.json" file was not found in the current directory');
@@ -232,12 +220,10 @@ export class CliApplication extends Application
 
                     if (!files) {
                         let exclude = require(_file).exclude || [];
-                        logger.info('defaultWalkFOlder', defaultWalkFOlder);
+
                         files = walk(defaultWalkFOlder || '.', exclude);
                     }
 
-                    // logger.info('typeof files', typeof files);
-                    // logger.info('JSON.stringify(files)', JSON.stringify(files));
                     super.setFiles(files);
                     super.generate();
                 }
@@ -269,7 +255,6 @@ export class CliApplication extends Application
                     super.testCoverage();
                 }
             } else if (program.tsconfig && program.args.length > 0) {
-                logger.info('program.tsconfig && program.args.length > 0');
                 this.configuration.mainData.tsconfig = program.tsconfig;
                 let sourceFolder = program.args[0];
                 if (!fs.existsSync(sourceFolder)) {
@@ -279,7 +264,6 @@ export class CliApplication extends Application
                     logger.info('Using provided source folder');
 
                     files = walk(path.resolve(sourceFolder), []);
-                    logger.info('files', files);
 
                     super.setFiles(files);
                     super.generate();
