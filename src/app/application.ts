@@ -949,13 +949,14 @@ export class Application {
         if(jsonPath.lastIndexOf('/') === -1) {
             jsonPath += '/';
         }
-        jsonPath += 'docs.json';
+        jsonPath += 'documentation.json';
         fs.outputJson(path.resolve(jsonPath), this.configuration.mainData, function (err) {
             if (err) {
                 logger.error('Error during json generation', err);
             }
         });
 
+/*
         let pages = this.configuration.pages,
             i = 0,
             len = pages.length,
@@ -1003,6 +1004,7 @@ export class Application {
                 }
             };
         loop();
+*/
     }
 
     processAdditionalPages() {
